@@ -70,7 +70,12 @@ for i in range(len(pts_x)) :
     erreur_absolue = abs(np.pi - monte_carlo(xy[0], xy[1]))
     pts_erreur[i] = erreur_absolue
 
-plt.plot(pts_x,pts_erreur)   
+# Créer le graphique
+plt.plot(pts_x,pts_erreur, label = 'Erreur absolue')  
+plt.legend()
+plt.xlabel('Nombre de points') 
+plt.ylabel('Erreur absolue')
+plt.title("Évolution de l'erreur absolue selon le nombre de point")
     
     
     
