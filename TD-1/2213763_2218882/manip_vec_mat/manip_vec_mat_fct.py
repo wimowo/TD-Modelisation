@@ -27,7 +27,12 @@ def faire_vecteur_f():
    return f
 
 
-plt.plot(faire_vecteur_x(),faire_vecteur_f())
+# Créer le graphique
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.title('Graphique de la fonction f(x)')
+plt.plot(faire_vecteur_x(),faire_vecteur_f(), label = 'f(x)')
+plt.legend()
 
 # Fonction pour construire la matrice du système d'équations
 def faire_matrice():
@@ -60,4 +65,6 @@ def faire_second_membre():
     b = np.array([8,7,-3])
 
     return b
+    
+# Printer la solution du syteme d'équation
 print(np.linalg.solve(faire_matrice(),faire_second_membre()))
