@@ -57,9 +57,9 @@ def monte_carlo(x,y):
    
     Pi = float((len(Nc)/N)*4)
             
-    
     return Pi
 
+# Créer 100 nombre de point entre 100 et 10 000
 pts_x = np.linspace(100, 10000+1, 100,dtype= int)
 
 pts_erreur = np.empty(pts_x.shape)
