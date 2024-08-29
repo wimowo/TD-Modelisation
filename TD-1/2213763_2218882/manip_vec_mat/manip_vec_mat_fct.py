@@ -19,12 +19,9 @@ def faire_vecteur_f():
     Sortie:
         - Un np.array contenant 101 chiffre contenant x^2 pour x appartenant à [0,5]
    """
-   vecteur = faire_vecteur_x()
-   f=[]
-   for i in vecteur:
-       x2 = i**2
-       f.append(x2)
-   return f
+   vecteur = np.square(faire_vecteur_x())
+  
+   return vecteur
 
 
 # Créer le graphique
