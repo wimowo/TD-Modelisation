@@ -1,4 +1,6 @@
+import math
 import numpy as np
+
 try:
     from algorithmie_fct import *
 except:
@@ -11,4 +13,4 @@ class Test:
         assert np.abs(serie_harmonique(3) - (1+0.5+1/3)) < 1e-12
 
     def test_factoriel(self):
-        assert np.abs(factoriel(50) - np.math.factorial(50)) < 1e-14
+        assert np.abs(factoriel(50) - math.factorial(50)) < 1e-14

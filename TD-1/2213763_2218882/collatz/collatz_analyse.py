@@ -17,12 +17,35 @@ import collatz_corr
 #-----------------------------------------------------------------------------
 
 # Code principal
-### À remplir
+
 
 #Graphiques
-### À remplir
 
+N = 5000
+
+x = np.arange(1, N+1)
+y = np.empty(x.shape)
+
+for i in range(N):
+    y[i] = collatz(i+1)
+
+plt.scatter(x,y, s=2)
+plt.title('Nombre d\'itérations selon l\'entier initial')
+plt.xlabel("Entier initial")
+plt.ylabel("Nombre d'itérations")
+plt.grid(True)
+plt.savefig('collatz.png')
 plt.show()
+
+# Fréquence d'itération
+
+plt.hist(y, 25)
+plt.title("Fréquence du nombre d'itération")
+plt.xlabel("Nombre d'itéraions")
+plt.ylabel("Fréquence")
+plt.savefig('collatz_frq.png')
+plt.show()
+
 
 #Correction
 pytest.main(['-q', '--tb=long', 'collatz_corr.py'])

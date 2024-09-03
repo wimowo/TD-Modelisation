@@ -11,16 +11,22 @@ import manip_vec_mat_corr
 
 
 # Manipulation d'un vecteur
-#x = faire_vecteur_x()
-#f = faire_vecteur_f()
+
+# Créer le graphique
+plt.xlabel("x")
+plt.ylabel("f(x)")
+plt.title('Graphique de la fonction f(x)')
+plt.grid(True)
+plt.plot(faire_vecteur_x(),faire_vecteur_f(), label = 'f(x)')
+
+plt.legend()
+plt.show()
 
 # Résolution d'un système linéaire
-#mat = faire_matrice()
-#b = faire_second_membre()
-sol = 0
-print(sol)
+mat = faire_matrice()
+b = faire_second_membre()
 
-
+print(np.linalg.solve(mat, b))
 
 # Correction
 pytest.main(['-q', '--tb=long', 'manip_vec_mat_corr.py'])

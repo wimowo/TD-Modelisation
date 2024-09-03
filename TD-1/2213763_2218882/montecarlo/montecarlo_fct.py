@@ -15,22 +15,10 @@ def genXY(n):
     assert isinstance(n,int) or isinstance(n,np.int32), "n pas du bon type."
     
     ### Fonction à écrire
-    position_x = []
-    position_y = []
-    i=0
-    r=1 
-    while i < n :
-        x = np.random.uniform(-r,r)
-        position_x.append(x)
-        i+=1
-    i=0
-    while i < n :
-        y = np.random.uniform(-r,r)
-        position_y.append(y)
-        i+=1
-  
+
+    rand = np.random.rand(2,n)
    
-    return position_x, position_y
+    return rand[0], rand[1]
 
 
 def monte_carlo(x,y):
@@ -46,37 +34,16 @@ def monte_carlo(x,y):
     assert len(x)==len(y), "Grandeurs des vecteurs ne concordent pas."
     
     ### Fonction à écrire
-    r=1
-    x2 = np.square(x)
-    y2 = np.square(y)
-    xy = np.add(x2,y2)
-    N = len(xy)
-    Nc= 0
-    
-    Nc = [i for i in xy if i <= 1]
+
+    r = x**2+y**2
+
+    N = len(r)
+    Nc = [i for i in r if i <= 1]
    
-    Pi = float((len(Nc)/N)*4)
+    pi = float((len(Nc)/N)*4)
             
-    return Pi
+    return pi
 
-# Créer 100 nombre de point entre 100 et 10 000
-pts_x = np.linspace(100, 10000+1, 100,dtype= int)
-
-pts_erreur = np.empty(pts_x.shape)
-
-for i in range(len(pts_x)) :
-    
-    xy = genXY(pts_x[i])
-    erreur_absolue = abs(np.pi - monte_carlo(xy[0], xy[1]))
-    pts_erreur[i] = erreur_absolue
-
-# Créer le graphique
-plt.plot(pts_x,pts_erreur, label = 'Erreur absolue')  
-plt.legend()
-plt.xlabel('Nombre de points') 
-plt.ylabel('Erreur absolue')
-plt.title("Évolution de l'erreur absolue selon le nombre de point")
-    
     
     
     

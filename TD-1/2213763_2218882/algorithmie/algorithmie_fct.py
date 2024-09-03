@@ -23,7 +23,7 @@ def factoriel(k):
         - Un nombre entier contenant le factoriel de k
     """
     factorial = 1
-    for i in range(1, k+1):
-        factorial *= i
+    for i in range(k):
+        factorial *= (i+1)
 
     return factorial
