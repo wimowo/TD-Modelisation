@@ -14,8 +14,8 @@ def diff1(h,dt):
     """
     
     # Fonction à écrire
-    
-    return # à compléter
+    deriv1 = np.gradient(h,dt, edge_order=2)
+    return deriv1
 
 #-------------------------------------Fonction diff2()-----------------------#
 def diff2(h,dt):
@@ -30,8 +30,9 @@ def diff2(h,dt):
     """
     
     # Fonction à écrire
+    deriv2 = np.gradient(diff1(h,dt),dt, edge_order=2)
     
-    return # à compléter
+    return deriv2
 
 #------------------------------Fonction acceleration()-----------------------#
 def acceleration(cst):
