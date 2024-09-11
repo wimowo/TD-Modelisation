@@ -30,8 +30,17 @@ def diff2(h,dt):
     """
     
     # Fonction à écrire
-    deriv2 = np.gradient(diff1(h,dt),dt, edge_order=2)
-    
+    #deriv2 = np.gradient(diff1(h,dt),dt, edge_order=2)
+    deriv2 = np.empty(len(h),dtype=float)
+    i=0
+    while i < len(h):
+        if i == 0:
+            deriv2[i] = (h[i+2]-2*h[i+1]+h[i])/(dt**2)
+        elif i == (len(h)-1):
+            deriv2[i] = (h[i]-2*h[i-1]+h[i-2])/(dt**2)
+        else:
+            deriv2[i] = (h[i+1]-2*h[i]+h[i-1])/(dt**2)
+        i+=1
     return deriv2
 
 #------------------------------Fonction acceleration()-----------------------#
