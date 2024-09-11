@@ -30,7 +30,7 @@ def diff2(h,dt):
     """
     
     # Fonction à écrire
-    #deriv2 = np.gradient(diff1(h,dt),dt, edge_order=2)
+   
     deriv2 = np.empty(len(h),dtype=float)
     i=0
     while i < len(h):

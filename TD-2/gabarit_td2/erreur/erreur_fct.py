@@ -11,7 +11,7 @@ def g(x):
         - Valeur obtenue après calcul
     """
     
-    return (2*np.sqrt(x**3)+3*np.sqrt(x))/(1+x)-3*np.atan(np.sqrt(x))
+    return (2*np.sqrt(x**3)+3*np.sqrt(x))/(1+x)-3*np.arctan(np.sqrt(x))
 
 def diff_arriere_ordre1(x,h):
     """Fonction qui calcule l'approximation de la dérivée numérique, selon le
