@@ -82,3 +82,22 @@ def vitesse(h,cst):
         v[i] = -cst.gamma * ((cst.rv/cst.rc)**2) * np.sqrt(2 * cst.g * h[i])
     
     return v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
