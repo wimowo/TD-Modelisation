@@ -15,24 +15,27 @@ except:
 
 #%% Données du problème
 class constantes():
-    rho = 0         # Densité de l'air [kg/m^3]
-    S = 0           # Surface de référence [m^2]
-    C = 0           # Coefficient de friction [-]
-    m = 0           # Masse de l'avion [kg]
+    rho = 1.341         # Densité de l'air [kg/m^3]
+    S = 580           # Surface de référence [m^2]
+    C = 0.027           # Coefficient de friction [-]
+    m = 250*1000           # Masse de l'avion [kg]
 
 t = np.arange(0,33,2)
 v = np.array([0,4,17,33,50,67,83,100,117,133,150,167,183,200,217,233,250])
+cst = constantes()
 
 
 
 #%% Accélération en fonction du temps
-
-
+dt =2
+a = acc(v, dt)
+# print('Acceleration :',a)
 #%% Force de poussée de l'avion
-
+# print('La force est:',force_poussee(v, a, cst))
 
 #%% Travail fourni par les moteurs
 
+print('Le travail est??? fois 32 secondes??? :',simpson(force_poussee(v, a, cst)* v,t)*32*1e-06)
 
 # Affichage (optionnel)
 # print("Les moteurs doivent fournir un travail de %.2f MJ." % (???))

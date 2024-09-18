@@ -12,9 +12,7 @@ def acc(v,dt):
         - Vecteur de valeur numérique de l'accélération instantanée au temps t [m/s^2]
     """
 
-    # Fonction à écrire
-
-    return # à compléter
+    return np.gradient(v,dt, edge_order=2)
 
 def force_poussee(v,a,cst):
     """Fonction qui calcule la force de poussée nécessaire
@@ -33,9 +31,12 @@ def force_poussee(v,a,cst):
             pour l'accélération de l'avion [N]
     """
 
-    # Fonction à écrire
-
-    return # à compléter
+    forces = np.empty(len(v),dtype=float)
+    i=0
+    while i < len(v):
+        forces[i] = (0.5*cst.rho*(v[i]**2)*cst.S*cst.C) + cst.m*a[i]
+        i += 1
+    return forces
 
 def trapeze(x,y):
     """Fonction qui calcule l'intégrale avec la méthode des trapèzes
@@ -48,9 +49,9 @@ def trapeze(x,y):
         - Valeur de l'intégrale calculée (float)
     """
 
-    # Fonction à écrire
+   
 
-    return # à compléter
+    return np.trapz(y,x)
 
 def simpson(x,y):
     """Fonction qui calcule l'intégrale selon Simpson 1/3
@@ -62,7 +63,28 @@ def simpson(x,y):
     Sortie :
         - Valeur numérique de l'intégrale
     """
-    
-    # Fonction à écrire
+    N = (len(x)-1)/2
+    simpson = 0
+    i=0
+    while i <= (N-1):
+        h = x[2*i+1]-x[2*i]
+        simpson += h/3*(y[2*i]+4*y[2*i+1]+y[2*i+2])
+        i += 1
+ 
         
-    return # à compléter
+    return simpson
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
