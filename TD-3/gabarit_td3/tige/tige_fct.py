@@ -11,7 +11,7 @@ def fonc(u):
         - Valeur de la variable dépendante
     """
 
-    return # à compléter
+    return 1/np.sqrt((8*np.sin(u))-u)
 
 def gauss(a,b,n):
     """Fonction qui calcule l'intégrale selon Gauss-Legendre
@@ -24,17 +24,27 @@ def gauss(a,b,n):
     Sortie :
         - Valeur numérique de l'intégrale
     """
+    u = ((b-a)*t+(a+b))/2
+    gt = fonc(u)*(b-a)/2
 
     # Points et poids d'intégration
     t = np.empty(n)
     w = np.empty(n)
 
     if n == 1:
-        pass# à compléter, pass doit être remplacer par le bon code
+        t[0] = 0
+        
+        w[0] = 2
     elif n == 2:
-        pass# à compléter, pass doit être remplacer par le bon code
+        t[0] = -np.sqrt(1/3)
+        t[1] = np.sqrt(1/3)
+        
+        w[0] = 1
+        w[1] = 2
     elif n == 3:
-        pass# à compléter, pass doit être remplacer par le bon code
+        t[0] = -np.sqrt(15/5)
+        t[1] = 0
+        t[2] = np.sqrt(15/5)
     elif n == 4:
         t[0] = (-np.sqrt(525 + 70*np.sqrt(30)))/35
         t[1] = (-np.sqrt(525 - 70*np.sqrt(30)))/35
