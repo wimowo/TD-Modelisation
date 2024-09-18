@@ -17,15 +17,27 @@ except:
 #-----------------------------------------------------------------------------
 
 #%% Calcul de l'intégrale numérique
+n = np.array([1,2,3,4,5])
+integrale = np.empty(len(n))
 
-
+for i in range(len(n)):
+    integrale[i] = gauss(0, np.pi/2, n[i])
+print(np.stack((n,integrale)))
 # Affichage en tableau
 
 
 #%% Calcul de l'erreur commise
-
+t = 0.99888139
+erreur = np.abs(integrale - t)
 
 # Affichage du graphique
+plt.plot(n, erreur)
+
+plt.xlabel("Nombre de point")
+plt.ylabel("Erreur")
+plt.title("Évolution de l'erreur en fonction du nombre de point")
+plt.xticks(np.arange(0,6,1))
+plt.grid()
 
 
 plt.show()

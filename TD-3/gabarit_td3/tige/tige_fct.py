@@ -24,8 +24,7 @@ def gauss(a,b,n):
     Sortie :
         - Valeur numérique de l'intégrale
     """
-    u = ((b-a)*t+(a+b))/2
-    gt = fonc(u)*(b-a)/2
+   
 
     # Points et poids d'intégration
     t = np.empty(n)
@@ -40,11 +39,15 @@ def gauss(a,b,n):
         t[1] = np.sqrt(1/3)
         
         w[0] = 1
-        w[1] = 2
+        w[1] = 1
     elif n == 3:
-        t[0] = -np.sqrt(15/5)
+        t[0] = -np.sqrt(15)/5
         t[1] = 0
-        t[2] = np.sqrt(15/5)
+        t[2] = np.sqrt(15)/5
+        
+        w[0] = 5/9
+        w[1] = 8/9
+        w[2] = 5/9
     elif n == 4:
         t[0] = (-np.sqrt(525 + 70*np.sqrt(30)))/35
         t[1] = (-np.sqrt(525 - 70*np.sqrt(30)))/35
@@ -67,8 +70,12 @@ def gauss(a,b,n):
         w[2] = 128/225
         w[3] = (322 + 13*np.sqrt(70))/900
         w[4] = (322 - 13*np.sqrt(70))/900
-
+        
+        
+    u = ((b-a)*t+(a+b))/2
+    ft = fonc(u)*(b-a)/2
     # Calcul de l'intégrale
+    integral = np.sum((np.multiply(ft,w)))
     # à compléter
 
-    return # à compléter
+    return integral

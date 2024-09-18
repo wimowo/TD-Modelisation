@@ -48,10 +48,14 @@ def trapeze(x,y):
     Sortie :
         - Valeur de l'intégrale calculée (float)
     """
+    integral = 0
+    
+    for i in range(len(x)-1):
+        integral += (x[i+1]-x[i])*(y[i]+y[i+1])/2
+    
+    #integral = np.trapz(y,x)
 
-   
-
-    return np.trapz(y,x)
+    return integral
 
 def simpson(x,y):
     """Fonction qui calcule l'intégrale selon Simpson 1/3
