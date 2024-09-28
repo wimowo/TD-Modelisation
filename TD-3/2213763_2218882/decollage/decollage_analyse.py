@@ -35,8 +35,8 @@ force = force_poussee(v, a, cst)
 travail = force_poussee(v, a, cst)* v
 
 #%% Travail fourni par les moteurs
-print('Le travail est??? fois 32 secondes??? :',trapeze(t,force_poussee(v, a, cst)* v) *1e-06)
-print('Le travail est??? fois 32 secondes??? :',simpson(t,force_poussee(v, a, cst)* v)*1e-06)
+print('Le travail est par trapeze:',trapeze(t,force_poussee(v, a, cst)* v) *1e-06)
+print('Le travail est par simpson:',simpson(t,force_poussee(v, a, cst)* v)*1e-06)
 
 # Affichage (optionnel)
 # print("Les moteurs doivent fournir un travail de %.2f MJ." % (???))

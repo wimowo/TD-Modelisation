@@ -11,6 +11,8 @@ except:
 
 import erreur_corr
 
+image_dir = "../../images/"
+
 # -----------------------------------------------------------------------------
 # Code principal pour l'analyse des résultats
 # Il faudra faire appel aux fonctions programmées dans erreur_fct.py afin de
@@ -51,6 +53,7 @@ plt.xlabel("x")
 plt.ylabel("g'(x)")
 plt.title('Comparaison des méthodes de différentiation numériques')
 plt.legend()
+plt.savefig(image_dir + "diff-methodes.png")
 plt.show()
 
 # %% Analyse de l'erreur
@@ -61,7 +64,7 @@ dg_exact = 0.157134840263677
 h = np.logspace(-10, -1, 200, base=10)
 err_1 = abs(diff_arriere_ordre1(x, h)-dg_exact)
 err_2 = abs(diff_centree_ordre2(x, h)-dg_exact)
-err_3 = abs(derivative(g, x, dx=h)-dg_exact)
+err_3 = abs(derivative(g, x, dx=h, order=2)-dg_exact)
 
 # %% Graphique des erreurs
 
@@ -72,6 +75,7 @@ plt.legend()
 plt.xlabel("Pas de différentiation Δx")
 plt.ylabel("Erreur")
 plt.title("Comparaison de l'évolution de l'erreur")
+plt.savefig(image_dir+"erreur_analyse.png")
 plt.show()
 
 # %% Correction
