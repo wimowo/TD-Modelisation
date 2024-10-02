@@ -1,6 +1,7 @@
 # Importation des modules
 import numpy as np
 
+
 def residu(x,prm):
     """Fonction calculant le résidu du système d'équations
     
@@ -26,10 +27,13 @@ def residu(x,prm):
     NB: - Simplifiez le bilan de masse pour qu'il ne soit fonction que des vitesses et des surfaces
     
     """
+   # np.empty([3,1]) fonctionne pas avec la correction...
+    residu = [0,0,0]
+    residu[0] = (np.pi/2)*prm.rho*(prm.D_s)**2*x[1]**2*np.cos(x[2]) + (np.pi/4)*prm.rho*prm.D_e**2*x[0]**2 - prm.m*prm.g
+    residu[1] = -(np.pi/2)*prm.rho*prm.D_s**2*x[1]**2*np.sin(x[2]) + prm.F
+    residu[2] = -x[0]*prm.D_e**2 + 2*x[1]*prm.D_s**2
     
-    # Fonction à écrire
-    
-    return # à compléter
+    return residu
 
 def newton_numerique(x,tol,prm):
     """Fonction résolvant le système d'équations avec la méthode de Newton et un jacobien numérique
@@ -54,7 +58,24 @@ def newton_numerique(x,tol,prm):
             - vecteur[1] : solution de la vitesse de sortie [m/s]
             - vecteur[2] : solution de la vitesse de l'angle d'inclinaison [rad]
     """
+    #Faire le Jacobien
+  
+    N = 100
     
-    # Fonction à écrire
-    
-    return # à compléter
+    h = tol
+    delta = 1
+    n = 0 
+    while np.linalg.norm(delta) > tol and n < N:
+        R = residu(x, prm)
+        
+        J = np.empty([3,3])
+        for i in range(len(R)):
+            x_p = np.copy(x)
+            x_p[i] = x_p[i]+h
+            R_p = residu(x_p,prm)
+            J[i] = np.subtract(R_p,R)/h
+        delta = np.linalg.solve(J.T, np.negative(R))
+        x = x + delta
+        n = n + 1
+
+    return x
