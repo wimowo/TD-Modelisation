@@ -22,18 +22,19 @@ class constantes():
     Re = 13743      # Nombre de Reynolds [-]
     k = 0.003375       # Rugosité [m]
     D = 0.3       # Diamètre de la conduite [m]
+    Re = 0      # Nombre de Reynolds [-]
+    k = 0       # Rugosité [m]
+    D = 0       # Diamètre de la conduite [m]
 
 cst = constantes()
 
 #%% Affichage du graphique
-x = np.linspace(0,1,10000)
-y = f(x, cst)
-plt.plot(x,y)
-plt.grid()
-plt.show() 
+
+
+plt.show()
 
 #%% Appel de la fonction bissection()
-print(bissection(0, 0.15, 0.1, 100, cst))
+
 
 #%% Appel de la fonction scipy (Supprimez les symboles de commentaire après avoir défini f)
 #l_scipy = fsolve(f,0.001,args=(cst))

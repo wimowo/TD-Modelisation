@@ -19,6 +19,7 @@ def f(l,cst):
     # Fonction à écrire
     
     return 2*np.log10((cst.k/(3.7*cst.D))+(2.51/(cst.Re*np.sqrt(l))))*np.sqrt(l)+1
+    return # à compléter
 
 def bissection(x1,x2,tol,N,cst):
     """Fonction calculant une racine d'une fonction grâce à la bissection
@@ -49,3 +50,7 @@ def bissection(x1,x2,tol,N,cst):
        
     
     return x_m
+    
+    # Fonction à écrire
+    
+    return # à compléter
