@@ -16,10 +16,11 @@ def fonc(v,prm):
     Sortie:
         - Vecteur (array) contenant les valeurs numériques du système d'équations
     """
-
-    # Fonction à écrire
-
-    return # à compléter
+    dxdt = prm.o*(v[1]-v[0])
+    dydt = prm.p*v[0]-v[1]-v[0]*v[2]
+    dzdt = v[0]*v[1]-prm.b*v[2]
+    
+    return [dxdt, dydt, dzdt]
 
 def rk4(ci,dt,tf,prm):
     """Fonction résolvant le système avec Runge-Kutta 4
@@ -41,7 +42,32 @@ def rk4(ci,dt,tf,prm):
             - Chaque colonne représente l'évolution d'une coordonnée dans le temps
         - Vecteur (array) du temps de simulation, allant de 0 à tf exclu
     """
+   
+       
+   
+    return 
 
-    # Fonction à écrire
 
-    return # à compléter
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
