@@ -20,7 +20,7 @@ def fonc(v,prm):
     dydt = prm.p*v[0]-v[1]-v[0]*v[2]
     dzdt = v[0]*v[1]-prm.b*v[2]
     
-    return [dxdt, dydt, dzdt]
+    return np.array([dxdt, dydt, dzdt])
 
 def rk4(ci,dt,tf,prm):
     """Fonction résolvant le système avec Runge-Kutta 4
@@ -42,10 +42,24 @@ def rk4(ci,dt,tf,prm):
             - Chaque colonne représente l'évolution d'une coordonnée dans le temps
         - Vecteur (array) du temps de simulation, allant de 0 à tf exclu
     """
+    
+    
+    temps = np.linspace(0, round((tf*100000-dt*100000))/100000,round((tf*100000)/(dt*100000)))
+    matrice = np.zeros((len(temps)+1, len(ci)))
+    matrice[0] = ci
    
-       
-   
-    return 
+    i = 0
+    while i <= len(temps)-1:
+        k1 = dt * fonc(ci,prm)
+        k2 = dt * fonc((ci+k1/2),prm)
+        k3 = dt * fonc((ci+k2/2),prm)
+        k4 = dt * fonc((ci+k3),prm)
+        
+        ci = ci + 1/6 * (k1 + 2*k2 + 2*k3 + k4)
+        matrice[i+1] = ci
+        i+=1
+    
+    return matrice,temps
 
 
 

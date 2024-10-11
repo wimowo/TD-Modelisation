@@ -24,20 +24,33 @@ class parametres():
 prm = parametres()
 
 # Conditions initiales
-ci = [9,5,3]
+ci = [10,10,20]
 dt = 0.001
-tf = 0.004
+tf = 30
 
 # Appel de la fonction rk4
+
 x = rk4(ci,dt,tf,prm)
-
-# Graphiques
+print(x)
+#Graphiques
 fig = plt.figure()
-ax = fig.add_subplot(projection='3d')
-ax.plot(x, y, z)
+ax = fig.add_subplot(111,projection='3d')
+ax.plot(x[0][:,0], x[0][:,1], x[0][:,2])
+ax.set_xlabel('Axe X')
+ax.set_ylabel('Axe Y')
+ax.set_zlabel('Axe Z')
+ax.set_title("Graphique 3D de l'attracteur de Lorenz")
 
-
-plt.show()
+ci = [10.0005,10.0005,20.0005]
+x = rk4(ci,dt,tf,prm)
+#Graphiques
+fig2 = plt.figure()
+ax = fig2.add_subplot(111,projection='3d')
+ax.plot(x[0][:,0], x[0][:,1], x[0][:,2])
+ax.set_xlabel('Axe X')
+ax.set_ylabel('Axe Y')
+ax.set_zlabel('Axe Z')
+ax.set_title("Graphique 3D de l'attracteur de Lorenz\n C.I. légèrement modifiées (0.0005)")
 
 # Correction
 pytest.main(['-q', '--tb=long', 'lorenz_corr.py'])
