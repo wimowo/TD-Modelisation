@@ -63,7 +63,9 @@ class Test:
         ci2 = np.array([1,5],dtype=float)
         rep_verlet = verlet(ci,dt,tf,prm1())
         rep_verlet2 = verlet(ci2,dt2,tf2,prm2())
-
+        
+        print(verlet(ci,dt,tf,prm1()))
+            
         assert(all(abs(np.asarray(rep_verlet[0][-1,:]) - verlet_vrai1) < 1e-06))
         assert(all(abs(np.asarray(rep_verlet2[0][-4,:]) - verlet_vrai2) < 1e-06))
 
