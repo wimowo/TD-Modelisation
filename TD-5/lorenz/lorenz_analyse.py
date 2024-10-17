@@ -31,7 +31,7 @@ tf = 30
 # Appel de la fonction rk4
 
 x = rk4(ci,dt,tf,prm)
-print(x)
+
 #Graphiques
 fig = plt.figure()
 ax = fig.add_subplot(111,projection='3d')
