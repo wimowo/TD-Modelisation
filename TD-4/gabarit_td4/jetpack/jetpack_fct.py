@@ -27,8 +27,7 @@ def residu(x,prm):
     NB: - Simplifiez le bilan de masse pour qu'il ne soit fonction que des vitesses et des surfaces
     
     """
-   # np.empty([3,1]) fonctionne pas avec la correction...
-    residu = [0,0,0]
+    residu = np.empty([3,])
     residu[0] = (np.pi/2)*prm.rho*(prm.D_s)**2*x[1]**2*np.cos(x[2]) + (np.pi/4)*prm.rho*prm.D_e**2*x[0]**2 - prm.m*prm.g
     residu[1] = -(np.pi/2)*prm.rho*prm.D_s**2*x[1]**2*np.sin(x[2]) + prm.F
     residu[2] = -x[0]*prm.D_e**2 + 2*x[1]*prm.D_s**2

@@ -32,8 +32,15 @@ l = np.linspace(0.01, 1, 100)
 y = f(l,cst)
 
 plt.plot(l, y)
+plt.axhline(y=0, color='k')
 plt.grid()
+plt.xlabel('Coefficient de friction λ')
+plt.ylabel('f(λ)')
+plt.xticks(np.linspace(0, 1, 11))
+plt.title("Intersection de la fonction f(λ) = 0")
+plt.savefig('colebrook_fct.png', dpi=300)
 plt.show()
+
 
 #%% Appel de la fonction bissection()
 tol = 10^-5
