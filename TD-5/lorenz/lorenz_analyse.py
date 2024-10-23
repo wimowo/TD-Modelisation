@@ -50,7 +50,7 @@ ax.plot(x[0][:,0], x[0][:,1], x[0][:,2])
 ax.set_xlabel('Axe X')
 ax.set_ylabel('Axe Y')
 ax.set_zlabel('Axe Z')
-ax.set_title("Graphique 3D de l'attracteur de Lorenz\n C.I. légèrement modifiées (0.0005)")
+ax.set_title("Graphique 3D de l'attracteur de Lorenz\n C.I. légèrement modifiées (+0.0005)")
 
 # Correction
 pytest.main(['-q', '--tb=long', 'lorenz_corr.py'])
