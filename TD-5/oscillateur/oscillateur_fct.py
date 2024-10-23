@@ -48,7 +48,7 @@ def euler_explicite(ci,dt,tf,prm):
         
         f = fonc(ci,prm) 
         ci += f *dt
-        print(ci)
+        
         matrice[i] = ci
         i+=1
     return matrice, temps

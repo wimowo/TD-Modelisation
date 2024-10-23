@@ -19,25 +19,68 @@ except:
 # Assignation des paramètres et conditions initiales
 # ATTENTION! Ne pas changer le nom des attributs
 class parametres():
-    k = 1       # Constante de rappel du ressort [kg]
-    m = 1       # Masse accroché au ressort [N/m]
+    k = 2       # Constante de rappel du ressort [kg]
+    m = 50/1000       # Masse accroché au ressort [N/m]
 prm = parametres()
 
+dt = 0.01
+tf = 3
+ci = np.array([2,0],dtype=float)
 # Euler explicite
-
+E = euler_explicite(ci, dt, tf, prm)
+ener_E = energie(E[0][:,0], E[0][:,1], prm)
 
 # Runge-Kutta 2
-
-
+RK = rk2(ci, dt, tf, prm)
+ener_RK = energie(RK[0][:,0], RK[0][:,1], prm)
+print(RK[0])
 # Verlet
-
-
+V = verlet(ci, dt, tf, prm)
+ener_V = energie(V[0][:,0], V[0][:,1], prm)
+print(V[0])
 # Solution analytique
-#y_a = 2*np.cos(np.sqrt(prm.k/prm.m)*t)
+t = np.linspace(0, round((tf*100000-dt*100000))/100000,round((tf*100000)/(dt*100000)))
+y_a = 2*np.cos(np.sqrt(prm.k/prm.m)*t)
 
 # Graphiques
+fig, axs = plt.subplots(3, 2, figsize=(12, 10))
+axs[0, 0].plot(E[1], E[0][:,0], 'r-', label='Euler')
+axs[0, 0].plot(E[1], y_a, 'b-', label='Analytique')
+axs[0, 0].set_title('Graphique 1: Euler - Position de la masse en fonction du temps')
+axs[0, 0].set_xlabel('Temps [s]') 
+axs[0, 0].set_ylabel('Position de la masse [m]')  
+axs[0, 0].legend()
 
+axs[0, 1].plot(E[1], ener_E)
+axs[0, 1].set_title('Graphique 2: Euler - Energie du système en fonction du temps')
+axs[0, 1].set_xlabel('Temps [s]') 
+axs[0, 1].set_ylabel('Énergie [J]') 
 
+axs[1, 0].plot(RK[1], RK[0][:,0], 'r-', label='Runge Kutta')
+axs[1, 0].plot(RK[1], y_a, 'b-', label='Analytique')
+axs[1, 0].set_title('Graphique 3: Runge kutta - Position de la masse en fonction du temps')
+axs[1, 0].set_xlabel('Temps [s]') 
+axs[1, 0].set_ylabel('Position de la masse [m]')  
+axs[1, 0].legend()
+
+axs[1, 1].plot(RK[1], ener_RK)
+axs[1, 1].set_title('Graphique 4: Runge kutta - Energie du système en fonction du temps')
+axs[1, 1].set_xlabel('Temps [s]') 
+axs[1, 1].set_ylabel('Énergie [J]') 
+
+axs[2, 0].plot(V[1], V[0][:,0], 'r-', label='Verlet')
+axs[2, 0].plot(V[1], y_a, 'b-', label='Analytique')
+axs[2, 0].set_title('Graphique 5: Verlet - Position de la masse en fonction du temps')
+axs[2, 0].set_xlabel('Temps [s]') 
+axs[2, 0].set_ylabel('Position de la masse [m]')  
+axs[2, 0].legend()
+
+axs[2, 1].plot(V[1], ener_V)
+axs[2, 1].set_title('Graphique 6: Verlet - Energie du système en fonction du temps')
+axs[2, 1].set_xlabel('Temps [s]') 
+axs[2, 1].set_ylabel('Énergie [J]') 
+
+plt.tight_layout()
 plt.show()
 
 # Correction
