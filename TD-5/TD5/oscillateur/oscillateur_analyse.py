@@ -45,7 +45,7 @@ t = np.linspace(0, round((tf*100000-dt*100000))/100000,round((tf*100000)/(dt*100
 y_a = 2*np.cos(np.sqrt(prm.k/prm.m)*t)
 
 # Graphiques
-
+plt.style.use('fast')
 fig, axs = plt.subplots(3, 2, figsize=(12, 10))
 axs[0, 0].plot(E[1], E[0][:,0], 'r-', label='Euler')
 axs[0, 0].plot(E[1], y_a, 'b-', label='Analytique')
@@ -60,7 +60,7 @@ axs[0, 1].set_xlabel('Temps [s]')
 axs[0, 1].set_ylabel('Énergie [J]') 
 
 axs[1, 0].plot(RK[1], RK[0][:,0], 'r-', label='Runge Kutta')
-axs[1, 0].plot(RK[1], y_a, 'b-', label='Analytique', linestyle='--')
+axs[1, 0].plot(RK[1], y_a, 'b--', label='Analytique' )
 axs[1, 0].set_title('Graphique 3: Runge kutta - Position de la masse en fonction du temps')
 axs[1, 0].set_xlabel('Temps [s]') 
 axs[1, 0].set_ylabel('Position de la masse [m]')  
@@ -72,7 +72,7 @@ axs[1, 1].set_xlabel('Temps [s]')
 axs[1, 1].set_ylabel('Énergie [J]') 
 
 axs[2, 0].plot(V[1], V[0][:,0], 'r-', label='Verlet')
-axs[2, 0].plot(V[1], y_a, 'b-', label='Analytique', linestyle='--')
+axs[2, 0].plot(V[1], y_a, 'b--', label='Analytique',)
 axs[2, 0].set_title('Graphique 5: Verlet - Position de la masse en fonction du temps')
 axs[2, 0].set_xlabel('Temps [s]') 
 axs[2, 0].set_ylabel('Position de la masse [m]')  
@@ -84,6 +84,7 @@ axs[2, 1].set_xlabel('Temps [s]')
 axs[2, 1].set_ylabel('Énergie [J]') 
 
 plt.tight_layout()
+plt.savefig("comparaison_oscillateur.png", dpi=300)
 plt.show()
 
 # Correction

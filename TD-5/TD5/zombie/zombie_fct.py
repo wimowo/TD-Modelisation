@@ -1,7 +1,8 @@
 # Importation des modules
 import numpy as np
 
-def residu(y,yi,prm,dt):
+
+def residu(y, yi, prm, dt):
     """Fonction calculant le résidu de la dynamique d'une invasion de zombie
     
     Entrées:
@@ -21,12 +22,15 @@ def residu(y,yi,prm,dt):
     Sortie:
         - Vecteur (array) contenant les valeurs numériques du résidu
     """
-    
-    # Fonction à écrire
+    r = np.empty((3,))
+    r[0] = yi[0] - y[0] + dt * (prm.p - prm.b * y[0] * y[1] - prm.d * y[0])
+    r[1] = yi[1] - y[1] + dt * (prm.b * y[0] * y[1] + prm.e * y[2] - prm.a * y[0] * y[1])
+    r[2] = yi[2] - y[2] + dt * (prm.d * y[0] + prm.a * y[0] * y[1] - prm.e * y[2])
 
-    return # à compléter
+    return r
 
-def jacobien(y,prm,dt):
+
+def jacobien(y, prm, dt):
     """Fonction calculant le jacobien de la dynamique d'une invasion de zombie
     
     Entrées:
@@ -45,12 +49,15 @@ def jacobien(y,prm,dt):
     Sortie:
         - Matrice (array) contenant les valeurs numériques du jacobien
     """
-    
-    # Fonction à écrire
 
-    return # à compléter
+    J = np.array([[-1 + dt * (- prm.b * y[1] - prm.d), dt * (- prm.b * y[0]), 0],
+                  [dt * (prm.b * y[1] - prm.a * y[1]), -1 + dt * (prm.b * y[0] - prm.a * y[0]), dt * prm.e],
+                  [dt * (prm.d + prm.a * y[1]), dt * (prm.a * y[0]), -1 + dt * (- prm.e)]])
 
-def euler_implicite(ci,dt,tf,tol,prm):
+    return J
+
+
+def euler_implicite(ci, dt, tf, tol, prm):
     """Fonction calculant le résidu de la dynamique d'une invasion de zombie
     
     Entrées:
@@ -74,7 +81,22 @@ def euler_implicite(ci,dt,tf,tol,prm):
             - Chaque colonne représente l'évolution d'une variable dans le temps
         - Vecteur (array) du temps de simulation
     """
-    
-    # Fonction à écrire
+    t = np.arange(0, tf+dt, dt)
+    sol = np.empty((len(t), 3))
 
-    return # à compléter
+    sol[0] = ci
+    yi = ci
+    y = ci
+
+    for i in range(1, len(t)):
+        delta = 1
+        while  np.linalg.norm(delta) > tol:
+            r = residu(y,yi,prm,dt)
+            j = jacobien(y, prm, dt)
+            delta = -np.linalg.solve(j, r)
+            y = y + delta
+
+        sol[i] = y
+        yi = y
+
+    return sol, t
