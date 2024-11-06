@@ -20,6 +20,21 @@ def mdf(prm):
         - Vecteur (array) de dimension N composé de la température en fonction du rayon, où N le nombre de noeuds
     """
 
-    # Fonction à écrire
-
-    return # à compléter
+    A = np.zeros([prm.n,prm.n])
+    b = np.zeros(prm.n)
+    A[0,0] = 1
+    A[-1,-1] = (3*prm.k/(2*prm.dr))+prm.h
+    A[-1,-2] = -4*prm.k/(2*prm.dr)
+    A[-1,-3] = prm.k/(2*prm.dr)
+    b[0] = prm.Tr
+    b[-1] = prm.h*prm.Te
+    r = np.linspace(prm.Ri, prm.Re, prm.n)
+    for i in range(1,prm.n-1):
+        A[i,i-1] = (1-(prm.dr/(2*r[i])))
+        A[i,i] = -2
+        A[i,i+1] = ((prm.dr/(2*r[i])) + 1)
+        b[i] = 0
+    print(A)
+    print(b)
+    T = np.linalg.solve(A, b)
+    return r,T

@@ -20,13 +20,13 @@ except:
 # Assignation des paramètres
 # ATTENTION! Ne pas changer le nom des attributs, seulement les valeurs
 class parametres():
-    Tr = 0              # Température à l'intérieur de la conduite
-    Te = 0              # Température ambiante autour de la conduite
-    k = 0               # [W*m^-1*K^-1] Conductivité thermique
-    h = 0               # [W*m^-2*K^-1] Coefficient de convection thermique
-    Re = 0              # [m] Rayon externe
-    Ri = 0              # [m] Rayon interne
-    n = 0               # [-] Nombre de noeuds
+    Tr = 70              # Température à l'intérieur de la conduite
+    Te = 25              # Température ambiante autour de la conduite
+    k = 1.3              # [W*m^-1*K^-1] Conductivité thermique
+    h = 12               # [W*m^-2*K^-1] Coefficient de convection thermique
+    Re = 4              # [m] Rayon externe
+    Ri = 2              # [m] Rayon interne
+    n = 5               # [-] Nombre de noeuds
     dr = (Re-Ri)/(n-1)  # [-] Pas en espace
 prm = parametres()
 
@@ -34,11 +34,23 @@ prm = parametres()
 k = [1.3,50,200]
 
 # Méthode de différences finies
-
+prm.k = k[0]
+r1,T1 = mdf(prm)
+prm.k = k[1]
+r2,T2 = mdf(prm)
+prm.k = k[2]
+r3,T3 = mdf(prm)
 
 # Graphique
-
-
+plt.plot(r1,T3, label='Aluminium, k = 200', color='g')
+plt.plot(r1,T2, label='Acier, k = 50', color='r')
+plt.plot(r1,T1, label='Béton, k = 1.3', color='b')
+plt.xlabel('Rayon [m]')
+plt.ylabel('Température [°C]')
+plt.title('Profils de température en fonction du rayon de la conduite pour différents matériaux')
+plt.yticks(np.arange(20,75,5))
+plt.grid()
+plt.legend()
 plt.show()
 
 # Correction
