@@ -1,6 +1,7 @@
 # Importation des modules
 import numpy as np
 
+
 def mdf(prm):
     """Fonction qui calcule le profil de température le long de l'ailette
 
@@ -18,12 +19,30 @@ def mdf(prm):
         - Vecteur (np.array) donnant la température tout au long de l'ailette en Kelvin
         - Vecteur (np.array) donnant la position tout au long de l'ailette (axe z) en mètre
     """
+    dz = prm.L / (prm.N - 1)
+    z = np.linspace(0, prm.L, prm.N)
+    A = np.zeros((prm.N, prm.N))
 
-    # Fonction à écrire
+    A[0, 0] = 1
+    A[-1, -3] = 1
+    A[-1, -2] = -4
+    A[-1, -1] = 3
+    for i in range(1, prm.N - 1):
+        A[i, i - 1] = 1
+        A[i, i] = -2 - (4 * prm.h * dz ** 2) / (prm.k * prm.D)
+        A[i, i + 1] = 1
 
-    return # à compléter
+    b = np.zeros((1, prm.N)).T
+    b[0] = prm.T_w
+    for i in range(1, prm.N - 1):
+        b[i] = ((-4 * prm.h * dz ** 2) / (prm.k * prm.D)) * prm.T_a
 
-def inte(T,z,prm):
+    T = np.linalg.solve(A, b)
+
+    return T, z
+
+
+def inte(T, z, prm):
     """Fonction qui intègre la convection sur la surface de l'ailette.
 
     Entrées:
@@ -41,8 +60,9 @@ def inte(T,z,prm):
         - Valeur numérique de l'intégrale résultante (perte en W)
     """
 
-
     # Fonction à écrire
-    I=0
+    I = 0
 
-    return I# à compléter
+
+
+    return I  # à compléter
