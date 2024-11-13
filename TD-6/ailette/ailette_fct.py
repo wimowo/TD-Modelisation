@@ -60,9 +60,11 @@ def inte(T, z, prm):
         - Valeur numérique de l'intégrale résultante (perte en W)
     """
 
-    # Fonction à écrire
     I = 0
+    dz = z[1] - z[0]
+    f = lambda t: prm.h * np.pi * prm.D * (t - prm.T_a)
 
-
+    for i in range(prm.N - 1):
+        I += (f(T[i]) + f(T[i + 1])) * dz / 2
 
     return I  # à compléter

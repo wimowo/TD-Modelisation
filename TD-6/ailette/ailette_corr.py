@@ -26,7 +26,9 @@ class Test:
                                                          337.9672250, 335.8259286]))
         err_z = abs(np.asarray(rep_mdf[1] - np.array([0., 0.05, 0.1, 0.15, 0.2])))
 
-        assert (all((err_mdf < 1e-06)))
+        print(err_mdf)
+        print(err_z)
+        assert (err_mdf.all() < 1e-06)
         assert (all(err_z < 1e-06))
 
     def test_inte(self):
