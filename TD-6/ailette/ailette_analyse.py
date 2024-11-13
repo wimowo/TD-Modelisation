@@ -87,6 +87,7 @@ plt.xlabel("Diametre D (m)")
 plt.ylabel("Dissipation de chaleur q (W)")
 plt.title("Evolution de la dissipation selon le diametre et la longeur de l'ailette")
 plt.hlines(y=10, xmin=0, xmax=D[-1], linestyles='dashed')
+plt.savefig("Comparaison_dim.png", dpi=300)
 plt.show()
 
 L = np.array([0.0125, 0.015])

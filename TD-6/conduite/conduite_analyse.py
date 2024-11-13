@@ -42,15 +42,17 @@ prm.k = k[2]
 r3,T3 = mdf(prm)
 
 # Graphique
-plt.plot(r1,T3, label='Aluminium, k = 200', color='g')
-plt.plot(r1,T2, label='Acier, k = 50', color='r')
-plt.plot(r1,T1, label='Béton, k = 1.3', color='b')
+plt.style.use('dark_background')
+plt.plot(r1,T3, label='Aluminium, k = 200')
+plt.plot(r1,T2, label='Acier, k = 50')
+plt.plot(r1,T1, label='Béton, k = 1.3')
 plt.xlabel('Rayon [m]')
 plt.ylabel('Température [°C]')
 plt.title('Profils de température en fonction du rayon de la conduite pour différents matériaux')
 plt.yticks(np.arange(20,75,5))
 plt.grid()
 plt.legend()
+plt.savefig('plots_rayon_profils.png',dpi=300)
 plt.show()
 
 # Correction
