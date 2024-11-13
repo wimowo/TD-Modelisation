@@ -51,8 +51,14 @@ Pe = [10,100,1000]
 # plt.colorbar(fig3, ax=ax[2])
 
 # plt.show()
+nx = 5
+ny = 5
+X = [-1,1]
+Y = [0,2]
 
+A,b = mdf_assemblage(X,Y,nx,ny,1,2)
 
+plt.matshow(A)
 
 
 plt.show()

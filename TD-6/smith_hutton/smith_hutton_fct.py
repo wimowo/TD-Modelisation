@@ -25,9 +25,16 @@ def position(X,Y,nx,ny):
                     [0    0    0  ]
     """
 
-    # Fonction à écrire
+    x = np.zeros((ny,nx))
+    y = np.zeros((nx,ny))
 
-    return # à compléter
+    for i in range(ny):
+        x[i] = np.linspace(X[0],X[1],nx)
+
+    for i in range(nx):
+        y[i] = np.linspace(Y[1],Y[0],ny)
+
+    return x, y.T
 
 def vitesse(x,y):
     """ Fonction donnant les vitesses en x et y selon la position
@@ -62,8 +69,33 @@ def mdf_assemblage(X,Y,nx,ny,Pe,alpha):
         - A : Matrice (array)
         - b : Vecteur (array)
     """
+    N = ny*nx
+    A = np.zeros((N,N))
+    b = np.zeros((N,1))
 
-    # Fonction à écrire
+    dx = (X[1] - X[0])/(nx-1)
+    dy = (Y[1] - Y[0])/(ny-1)
 
+    px,py  = position(X,Y,nx,ny)
+    vx,vy = vitesse(px, py)
 
-    return # à compléter
+    for k in range(N):
+        y = k%(ny-1)
+        x = k//ny
+
+        if(x==0 or y==(ny-1) or x==(nx-1)):
+            A[k, k] = 1
+            b[k] = 1-np.tanh(alpha)
+        elif (y == 0 and x <= (nx-1)/2):
+            A[k, k] = 1
+            b[k] = 1 + np.tanh(alpha*(2*px[x,y]+1))
+        elif(y==0):
+            continue
+        else:
+            A[k-y-x, k] = y**-2+Pe*vy[x,y-1]/(dy*2)
+            A[k,k-1] = dx**-2+Pe*vx[x-1,y]/(dx*2)
+            A[k,k] = -2*(dx**-2+dy**-2)
+            A[k, k + 1] = dx ** -2 - Pe * vx[x+1,y] / (dx * 2)
+            A[k+y+(nx-x),k] = y ** -2 - Pe * vy[x,y+1] / (dy * 2)
+
+    return A, b
