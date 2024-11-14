@@ -1,7 +1,8 @@
 # Importation des modules
 import numpy as np
 
-def position(X,Y,nx,ny):
+
+def position(X, Y, nx, ny):
     """ Fonction générant deux matrices de discrétisation de l'espace
 
     Entrées:
@@ -24,19 +25,15 @@ def position(X,Y,nx,ny):
                     [0.5  0.5  0.5]
                     [0    0    0  ]
     """
+    x = np.linspace(X[0], X[1], nx)
+    y = np.linspace(Y[1], Y[0], ny)
 
-    x = np.zeros((ny,nx))
-    y = np.zeros((nx,ny))
+    x,y = np.meshgrid(x,y)
 
-    for i in range(ny):
-        x[i] = np.linspace(X[0],X[1],nx)
+    return x, y
 
-    for i in range(nx):
-        y[i] = np.linspace(Y[1],Y[0],ny)
 
-    return x, y.T
-
-def vitesse(x,y):
+def vitesse(x, y):
     """ Fonction donnant les vitesses en x et y selon la position
 
     Entrées:
@@ -49,12 +46,13 @@ def vitesse(x,y):
 
     """
 
-    u = 2*y*(1-x**2)
-    v = -2*x*(1-y**2)
+    u = 2 * y * (1 - x ** 2)
+    v = -2 * x * (1 - y ** 2)
 
-    return u,v
+    return u, v
 
-def mdf_assemblage(X,Y,nx,ny,Pe,alpha):
+
+def mdf_assemblage(X, Y, nx, ny, Pe, alpha):
     """ Fonction assemblant la matrice A et le vecteur b
 
     Entrées:
@@ -69,33 +67,35 @@ def mdf_assemblage(X,Y,nx,ny,Pe,alpha):
         - A : Matrice (array)
         - b : Vecteur (array)
     """
-    N = ny*nx
-    A = np.zeros((N,N))
-    b = np.zeros((N,1))
+    N = ny * nx
+    A = np.zeros((N, N))
+    b = np.zeros(N)
 
-    dx = (X[1] - X[0])/(nx-1)
-    dy = (Y[1] - Y[0])/(ny-1)
+    dx = (X[1] - X[0]) / (nx - 1)
+    dy = (Y[1] - Y[0]) / (ny - 1)
 
-    px,py  = position(X,Y,nx,ny)
-    vx,vy = vitesse(px, py)
+    px, py = position(X, Y, nx, ny)
+    vx, vy = vitesse(px, py)
 
     for k in range(N):
-        y = k%(ny-1)
-        x = k//ny
+        y = (ny - 1) - k % ny
+        x = k // ny
 
-        if(x==0 or y==(ny-1) or x==(nx-1)):
+        if (x == 0 or y == (ny - 1) or x == (nx - 1)):
             A[k, k] = 1
-            b[k] = 1-np.tanh(alpha)
-        elif (y == 0 and x <= (nx-1)/2):
+            b[k] = 1 - np.tanh(alpha)
+        elif (y == 0 and x <= (nx - 1) / 2):
             A[k, k] = 1
-            b[k] = 1 + np.tanh(alpha*(2*px[x,y]+1))
-        elif(y==0):
-            continue
+            b[k] = 1 + np.tanh(alpha * (2 * px[y, x] + 1))
+        elif (y == 0):
+            A[k, k] = -3/(2*dy)
+            A[k, k - 1] = 4/(2*dy)
+            A[k, k - 2] = -1/(2*dy)
         else:
-            A[k-y-x, k] = y**-2+Pe*vy[x,y-1]/(dy*2)
-            A[k,k-1] = dx**-2+Pe*vx[x-1,y]/(dx*2)
-            A[k,k] = -2*(dx**-2+dy**-2)
-            A[k, k + 1] = dx ** -2 - Pe * vx[x+1,y] / (dx * 2)
-            A[k+y+(nx-x),k] = y ** -2 - Pe * vy[x,y+1] / (dy * 2)
+            A[k, k - 1] = 1/(Pe*dy**2) + vy[y+1,x] / (2*dy)
+            A[k, k - ny] = 1/(Pe*dx**2) + vx[y,x-1] /(2*dx)
+            A[k, k] = -2/Pe * (dx ** -2 + dy ** -2)
+            A[k, k + ny] = 1/(Pe*dx**2) - vx[y,x+1] / (2*dx)
+            A[k, k + 1] = 1/(Pe*dy**2) - vy[y-1,x] / (2*dy)
 
     return A, b

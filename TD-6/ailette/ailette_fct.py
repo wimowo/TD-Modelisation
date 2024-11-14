@@ -32,7 +32,7 @@ def mdf(prm):
         A[i, i] = -2 - (4 * prm.h * dz ** 2) / (prm.k * prm.D)
         A[i, i + 1] = 1
 
-    b = np.zeros((1, prm.N)).T
+    b = np.zeros(prm.N)
     b[0] = prm.T_w
     for i in range(1, prm.N - 1):
         b[i] = ((-4 * prm.h * dz ** 2) / (prm.k * prm.D)) * prm.T_a

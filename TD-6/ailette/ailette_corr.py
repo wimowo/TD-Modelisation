@@ -28,7 +28,7 @@ class Test:
 
         print(err_mdf)
         print(err_z)
-        assert (err_mdf.all() < 1e-06)
+        assert all(err_mdf < 1e-06)
         assert (all(err_z < 1e-06))
 
     def test_inte(self):

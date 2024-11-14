@@ -40,7 +40,7 @@ y_analytique = (prm.T_w - prm.T_a) * np.cosh(m * (prm.L - R[1])) / np.cosh(m * p
 # Graphique
 
 plt.style.use('dark_background')
-plt.plot(R[1], R[0], label='Solution par différence finie')
+plt.plot(R[1], R[0], "r",label='Solution par différence finie')
 plt.plot(R[1], y_analytique, "--y", label="Solution analytique")
 
 plt.xlabel("Position z (m)")
