@@ -43,34 +43,44 @@ c100 = np.linalg.solve(A, b)
 A, b = mdf_assemblage(X, Y, nx, ny, Pe[2], alpha)
 c1000 = np.linalg.solve(A, b)
 
-
 # Graphiques (utilisez les lignes suivantes pour générer la figure demandée)
-c10_reshaped = c10.reshape(nx,ny).transpose()
-c100_reshaped = c100.reshape(nx,ny).transpose()
-c1000_reshaped = c1000.reshape(nx,ny).transpose()
+c10_reshaped = c10.reshape(nx, ny).transpose()
+c100_reshaped = c100.reshape(nx, ny).transpose()
+c1000_reshaped = c1000.reshape(nx, ny).transpose()
 
 x = np.linspace(X[0], X[1], nx)
 y = np.linspace(Y[0], Y[1], ny)
 
+plt.style.use('dark_background')
 fig, ax = plt.subplots(nrows=3, ncols=1)
+fig.tight_layout()
 
-fig1 = ax[0].pcolormesh(x,y, c10_reshaped)
+fig1 = ax[0].pcolormesh(x, y, c10_reshaped)
 plt.colorbar(fig1, ax=ax[0])
+ax[0].set_title('Profil de concentration avec Pe = 10')
 
-fig2 = ax[1].pcolormesh(x,y, c100_reshaped)
+fig2 = ax[1].pcolormesh(x, y, c100_reshaped)
 plt.colorbar(fig2, ax=ax[1])
+ax[1].set_title('Profil de concentration avec Pe = 100')
 
-fig3 = ax[2].pcolormesh(x,y, c1000_reshaped)
+fig3 = ax[2].pcolormesh(x, y, c1000_reshaped)
 plt.colorbar(fig3, ax=ax[2])
-
+ax[2].set_title('Profil de concentration avec Pe = 1000')
+plt.savefig('Profil de concentration avec Pe', dpi=300)
 plt.show()
 
-# plt.plot(x_p, s_p10)
-# plt.plot(x_p, s_p100)
-# plt.plot(x_p, s_p1000)
-
-# plt.show()
-
+plt.plot(x_p, s_p10, "y", label='Analytique Pe=10')
+plt.plot(x[int(nx / 2):], c10_reshaped[-1, int(nx / 2):], "y--o", label='Numérique Pe=10')
+plt.plot(x_p, s_p100, "c", label='Analytique Pe=100')
+plt.plot(x[int(nx / 2):], c100_reshaped[-1, int(nx / 2):], "c--o", label='Numérique Pe=100')
+plt.plot(x_p, s_p1000, "m", label='Analytique Pe=1000')
+plt.plot(x[int(nx / 2):], c1000_reshaped[-1, int(nx / 2):], "m--o", label='Numérique Pe=1000')
+plt.legend()
+plt.title('Comparaison des profils de concentration à la sortie')
+plt.xlabel('Position x')
+plt.ylabel('Profil de concentration C')
+plt.savefig("Comparaison des sorties", dpi=300)
+plt.show()
 
 nx = 5
 ny = 5
@@ -85,7 +95,7 @@ x, y = position(X, Y, nx, ny)
 
 fig, ax = plt.subplots(nrows=2, ncols=1)
 
-fig1 = ax[0].pcolormesh(x[0], y.T[0], c)
+fig1 = ax[0].pcolormesh(x, y, c)
 plt.colorbar(fig1, ax=ax[0])
 
 c_cor = np.array([0.035972, 0.035972, 0.035972, 0.035972, 0.035972,
@@ -93,7 +103,7 @@ c_cor = np.array([0.035972, 0.035972, 0.035972, 0.035972, 0.035972,
                   0.035972, 0.142702, 0.357701, 0.823647, 1.964028,
                   0.035972, 0.156310, 0.275657, 0.431998, 0.484111,
                   0.035972, 0.035972, 0.035972, 0.035972, 0.035972])
-c_cor = c_cor.reshape(nx, ny).transpose()
+c_cor = c_cor.reshape(5, 5).transpose()
 
 fig2 = ax[1].pcolormesh(x[0], y.T[0], c_cor)
 plt.colorbar(fig2, ax=ax[1])
