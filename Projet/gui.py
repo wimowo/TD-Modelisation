@@ -234,8 +234,8 @@ class FluidFlowApp:
 
         for point, index in point_index.items():
             x, y = point
-            neighbors = {}
-
+            neighbors = []
+            print()
             for neighbor in self.graph.neighbors(point):
                 neighbor_index = point_index[neighbor]
                 nx, ny = neighbor
