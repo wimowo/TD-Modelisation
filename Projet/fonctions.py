@@ -16,3 +16,5 @@ def Cr(Q):
 def Resistance(Q) :
     return L/ (944.62*Cr(Q)**1.8099*D**4.8099)
 
+
+
