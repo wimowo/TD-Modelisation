@@ -176,7 +176,7 @@ class FluidFlowApp:
         for edge in self.graph.edges:
             x1, y1 = edge[0]
             x2, y2 = edge[1]
-            self.grid_canvas.create_line(x1, y1, x2, y2, fill="white")
+            self.grid_canvas.create_line(x1, y1, x2, y2, fill="#3b92f5", tags="connection", width=3)
     def reset_grid(self):
         """Clears the entire grid, resets all points, and redraws the canvas."""
         # Clear data structures
@@ -234,13 +234,12 @@ class FluidFlowApp:
 
         for point, index in point_index.items():
             x, y = point
-            neighbors = {}
-
+            neighbors = []
+            
             for neighbor in self.graph.neighbors(point):
                 neighbor_index = point_index[neighbor]
                 nx, ny = neighbor
-                distance = (((nx - x) ** 2 + (ny - y) ** 2) ** 0.5)/self.grid_size * self.length_var.get()  # Euclidean distance
-                neighbors[neighbor_index] = distance
+                neighbors.append(neighbor_index)
 
             # Export only the selected parameter
             active = self.points[point]["active"].get()
