@@ -5,13 +5,24 @@ try:
 except:
     pass
 
+
 class parametres():
     L = 25  # Longueur des conduits (m)
-    D = 0.0095  # Taux de transformation en zombie (beta)
-    e = 0.005  # Taux de mort de zombie (alpha)
-    p = 0.0001  # Taux de mort naturelle (delta)
-    u = 0.0001  # Taux de naissance (pi)
+    D = 0.2  # Diametre (m)
+    e = 0.00026  # Rugosite (m)
+    p = 1000  # Masse volumique (kg/m3)
+    u = 0.00089  # Viscosite dynamique (pa/s)
 
 
 prm = parametres()
+
+reseau_6_noeuds = {0: {"voisins": [2, 3], "pression": 100},
+                   1: {"voisins": [2, 3, 5], "pression": 95},
+                   2: {"voisins": [0, 1], "debit": 0.3},
+                   3: {"voisins": [0, 1, 4], "debit": 0.2},
+                   4: {"voisins": [3, 5], "debit": 0.4},
+                   5: {"voisins": [1, 4], "debit": 0.1}}
+
+
+print(conduits(reseau_6_noeuds))
 

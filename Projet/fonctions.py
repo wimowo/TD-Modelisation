@@ -16,17 +16,41 @@ def residu(Q, P, points, prm):
 
 def newton_resolution(x, tol, prm):
 
-    return
+    N = 100
+
+    h = tol
+    delta = 1
+    n = 0
+
+    while np.linalg.norm(delta) > tol and n < N:
+        R = residu(x, prm)
+
+        J = np.empty([len(x), len(x)])
+
+        for i in range(len(R)):
+            x_p = np.copy(x)
+            x_p[i] = x_p[i] + h
+            R_p = residu(x_p, prm)
+            J[i] = np.subtract(R_p, R) / h
+
+        delta = np.linalg.solve(J.T, np.negative(R))
+        x = x + delta
+        n = n + 1
+
+    return x
 
 def calculation_sim(points, prm):
     """Fonction servant a effectuer la simulation du systeme"""
 
     return
 
-def nb_conduit(points):
+def conduits(points):
     """Fonction qui renvoie le nombre de conduit"""
+    nb_conduits = 0
+    conduits = {}
 
-    nb_voisins = 0
+    for n in points.values():
+        nb_conduits += len(n["voisins"])
+    nb_conduits = nb_conduits / 2
 
-    for p in points:
-        p.get("neighbors")
+    return nb_conduits
