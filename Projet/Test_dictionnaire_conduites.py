@@ -108,10 +108,10 @@ def construire_valeurs_initales(reseau):
 
 # Ca semble être cohérent avec les valeurs initale estimées
 conduites,pressions_noeud,debits_noeud,debits_tuyaux = construire_valeurs_initales(reseau_6_noeuds)
-print('Dict des conduites:', conduites)
+# print('Dict des conduites:', conduites)
 # print('Dict des Pressions au noeud:', pressions_noeud)
 # print('Dict des débits au noeud:', debits_noeud)
-print('Dict des débits par conduite:',debits_tuyaux)
+# print('Dict des débits par conduite:',debits_tuyaux)
 
 
 
@@ -244,6 +244,6 @@ while np.linalg.norm(delta) > tol and n < N:
         
         i+=1
     n = n + 1
-print(inconnus)
+print('Résolution inconnus:',inconnus)
 
 
