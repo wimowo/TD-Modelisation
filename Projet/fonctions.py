@@ -4,7 +4,11 @@ Created on Wed Nov 20 09:25:47 2024
 
 @author: tardi
 """
-
+L = 25
+D = 0.2
+e = 0.00026
+rho = 1000
+mu = 0.00089
 import numpy as np
 
 def Reynolds(Q) :
@@ -18,3 +22,4 @@ def Resistance(Q) :
 
 
 
+print(Resistance(0.5))

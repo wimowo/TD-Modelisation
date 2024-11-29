@@ -14,9 +14,7 @@ mu = 0.00089
 #fonction resistance
 
 def Reynolds(Q) :
-    if Q==0:
-        return 100
-    else:
+    
      return (4*rho*Q)/(np.pi*mu*D)
 
 def Cr(Q):
@@ -67,9 +65,7 @@ def construire_valeurs_initales(reseau):
     
     for noeud, details in reseau_6_noeuds.items():
         
-        # si la pression est donnée on la met directement
-        # if "pression" in details: 
-        #     pressions_noeud[f'P{noeud}'] = details["pression"]
+     
         # Si pas de pression, on prend la moyenne des pressions des voisins    
           
             voisins = details["voisins"]
@@ -79,16 +75,13 @@ def construire_valeurs_initales(reseau):
             else:
                 pressions_noeud[f'P{noeud}'] = 100  # Valeur par défaut s'il n'y a pas de voisins avec pression définie 
        
-        # if "debit" in details:
-        #     debits_noeud[f'D{noeud}'] = details["debit"]
-       
             # Si pas de débit spécifié, prendre la somme des débits voisins
             voisins = details["voisins"]
            
             debits_voisins = [debits_noeud[f'D{voisin}'] for voisin in voisins if f'D{voisin}' in debits_noeud]
            
             if debits_voisins:
-                debits_noeud[f'D{noeud}'] = (sum(debits_voisins))
+                debits_noeud[f'D{noeud}'] = abs(sum(debits_voisins))
             else:
                 debits_noeud[f'D{noeud}'] = 100  # Valeur par défaut s'il n'y a pas de voisin
          
@@ -105,26 +98,11 @@ def construire_valeurs_initales(reseau):
                 pression_noeud = pressions_noeud[f'P{noeud}']
                 pression_voisin = pressions_noeud[f'P{voisin}']
                 # Estimation avec la loi de Poiseuille
-                debit_estime = np.pi*(pression_noeud - pression_voisin)*(D/2)**4/(8*mu*L)
+                debit_estime = abs(np.pi*(pression_noeud - pression_voisin)*(D/2)**4/(8*mu*L))
                 
                 # Ajouter l'estimation du débit pour cette conduite
                 debits_tuyaux[f'D{tuyau}'] = debit_estime
             
-        
-        # vraiment compliqué de choisir des pression en fonction du sens des débits et pressions voisins...
-           # pression_noeud = details['pression']
-           # pression_moyenne = 0
-           # debit_voisin = []
-           # for voisin in details["voisins"]:
-           #     if "debit" in reseau_6_noeuds[voisin]:
-           #         print(reseau_6_noeuds[voisin]['debit'])
-           #         print(voisin)
-           #     if "pression" in reseau_6_noeuds[voisin]:
-           #         print(reseau_6_noeuds[voisin]['pression'])
-                   
-           #     elif "debit" in reseau_6_noeuds[voisin]:
-           #         print(reseau_6_noeuds[voisin]['debit'])    
-                
     return conduites,pressions_noeud,debits_noeud,debits_tuyaux
 
 
@@ -133,11 +111,11 @@ conduites,pressions_noeud,debits_noeud,debits_tuyaux = construire_valeurs_inital
 print('Dict des conduites:', conduites)
 # print('Dict des Pressions au noeud:', pressions_noeud)
 # print('Dict des débits au noeud:', debits_noeud)
-# print('Dict des débits par conduite:',debits_tuyaux)
+print('Dict des débits par conduite:',debits_tuyaux)
 
 
 
-# Reste a diviser les inconnus 
+# Diviser les inconnus et connus
 connus = {}
 inconnus = {}
 
@@ -165,31 +143,10 @@ for conduite_key in debits_tuyaux.keys():
 print("Connus : ", connus)
 print("Inconnus : ", inconnus)
 
-vec_connu = np.array(list(connus.keys()))
-vec_valeur_connues = np.array(list(connus.values()))
-
-vec_inconnu = np.array(list(inconnus.keys()))
-vec_valeur_inconnues = np.array(list(inconnus.values()))
-
-print("Variables connues : ", vec_connu)
-print("Valeurs des variables connues : ", vec_valeur_connues)
-print("Variables inconnues : ", vec_inconnu)
-print("Valeurs des variables inconnues : ", vec_valeur_inconnues)
-
 
 # # Fonction de calcul des résidus
-def calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues , vec_inconnues , inconnus):
-    # Créer un dictionnaire pour accéder aux valeurs par variable (connues et inconnues)
-  
-    variables_connues = vec_connu
-    variables_inconnues = vec_inconnues
-    valeurs_connues = vec_valeur_connues
-    valeurs_inconnues = vec_valeur_inconnues
+def calcul_residu(reseau_6_noeuds, conduites, connus, inconnus):
     
-    
-    variables_et_valeurs = dict(zip(np.concatenate([variables_connues, variables_inconnues]), 
-                                np.concatenate([valeurs_connues, valeurs_inconnues])))
- 
     # Résidu pour les noeuds (somme des débits entrants et sortants)
     residu_noeud = []
     
@@ -197,10 +154,10 @@ def calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues , v
         somme_debits = 0
         
         # Ajouter les débits connus du noeud
-        if f'D{noeud}' in variables_et_valeurs and f'D{noeud}' in inconnus:
+        if f'D{noeud}' in inconnus:
             debit_noeud = inconnus.get(f'D{noeud}')  # Débit du noeud
         else:
-            debit_noeud = variables_et_valeurs.get(f'D{noeud}')  # Débit du noeud
+            debit_noeud = connus.get(f'D{noeud}')  # Débit du noeud
         somme_debits += debit_noeud
         
         # Ajouter les débits estimés des conduites
@@ -213,78 +170,66 @@ def calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues , v
             tuyau_indice = int(tuyau_nom[1:])  # Indice des débits dans les conduites
             
             # Récupérer les débits estimés des conduites
-            #debit_estime = debits_tuyaux.get(f'D{tuyau_nom}')  # Débit estimé pour la conduite
-            if f'D{tuyau_nom}' in variables_et_valeurs and f'D{tuyau_nom}' in inconnus:
+            if f'D{tuyau_nom}' in inconnus:
                 debit_estime = inconnus.get(f'D{tuyau_nom}')
             else:
-                debit_estime = variables_et_valeurs.get(f'D{tuyau_nom}')
+                debit_estime = connus.get(f'D{tuyau_nom}')
             # print(debit_estime)
             somme_debits += debit_estime
         
         # Le résidu pour ce noeud (la somme des débits doit être égale à zéro)
         residu_noeud.append(somme_debits)
-    
+   
     # Résidu pour les conduites (calcul de la résistance)
     residu_conduites = []
-  
+    
     for (noeud_i, noeud_j), tuyau in conduites.items():
-        if f'P{noeud_i}' in variables_et_valeurs and f'P{noeud_i}' in inconnus:
+        if f'P{noeud_i}' in inconnus:
             P_i = inconnus.get(f'P{noeud_i}')  # Pression du noeud i
         else:
-            P_i = variables_et_valeurs.get(f'P{noeud_i}')  # Pression du noeud i
+            P_i = connus.get(f'P{noeud_i}')  # Pression du noeud i
            
            
-        if f'P{noeud_j}' in variables_et_valeurs and f'P{noeud_j}' in inconnus:
+        if f'P{noeud_j}' in inconnus:
            P_j = inconnus.get(f'P{noeud_j}')  # Pression du noeud j  
             
         else:   
-            P_j = variables_et_valeurs.get(f'P{noeud_j}')  # Pression du noeud j
+            P_j = connus.get(f'P{noeud_j}')  # Pression du noeud j
         tuyau_indice = int(tuyau[1:])  # Indice des débits dans les conduites
         
-        if f'DC{tuyau_indice}' in variables_et_valeurs and f'DC{tuyau_indice}' in inconnus:
+        if f'DC{tuyau_indice}' in inconnus:
             Q = inconnus.get(f'DC{tuyau_indice}')  # Débit dans la conduite
         else:   
-            Q = variables_et_valeurs.get(f'DC{tuyau_indice}')  # Débit dans la conduite
+            Q = connus.get(f'DC{tuyau_indice}')  # Débit dans la conduite
   
         # Calcul de R(Q) pour la conduite
         RQ = Resistance(abs(Q))  # Résistance 
        
         # Calcul du résidu pour cette conduite
         residu_conduites.append(abs(P_i - P_j) - RQ * abs(Q)**1.8099)
-    
+   
     # Concaténer les résidus des noeuds et des conduites
     residu_total = np.concatenate([residu_noeud, residu_conduites])
     
     return residu_total
-# print(calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues, vec_inconnu , vec_valeur_inconnues))
 
-# 2iem test de résidu
-# variables_connues = vec_connu
-# variables_inconnues = vec_inconnu
-# valeurs_connues = vec_valeur_connues
-# valeurs_inconnues = vec_valeur_inconnues
-# variables_et_valeurs = dict(zip(np.concatenate([variables_connues, variables_inconnues]), 
-#                             np.concatenate([valeurs_connues, valeurs_inconnues])))
-# print(variables_et_valeurs)
-
-
-
+# Newton-Raphson
 N = 100
 tol =0.001
 h = tol
 delta = 1
 n = 0 
 while np.linalg.norm(delta) > tol and n < N:
-    R = calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues, vec_inconnu , inconnus) 
+    R = calcul_residu(reseau_6_noeuds, conduites, connus, inconnus) 
     # print('R',R)
-    J = np.empty([len(vec_inconnu),len(vec_inconnu)])
+    J = np.empty([len(R),len(R)])
     i=0
     for a,b in inconnus.items() :
         # print('ab',a,b)
         x_p = inconnus.copy()
         x_p[a] = b+h
         # print('xp',x_p)
-        R_p = calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues, vec_inconnu , x_p)
+        R_p = calcul_residu(reseau_6_noeuds, conduites, connus, x_p)
         # print('RP',R_p)
         # print('soustra',np.subtract(R_p,R))
         J[i] = np.subtract(R_p,R)/h
@@ -300,26 +245,5 @@ while np.linalg.norm(delta) > tol and n < N:
         i+=1
     n = n + 1
 print(inconnus)
-# N = 100
-# tol =0.001
-# h = tol
-# delta = 1
-# n = 0 
-# while np.linalg.norm(delta) > tol and n < N:
-#     R = calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues, vec_inconnu , vec_valeur_inconnues) 
-#     print('R',R)
-#     J = np.empty([len(vec_inconnu),len(vec_inconnu)])
-#     for i in range(len(R)):
-#         print(i)
-#         x_p = np.copy(vec_valeur_inconnues)
-#         x_p[i] = x_p[i]+h
-#         print('xp',x_p)
-#         R_p = calcul_residu(reseau_6_noeuds, conduites, vec_connu , vec_valeur_connues, vec_inconnu , x_p)
-#         print(R_p)
-#         print(np.subtract(R_p,R))
-#         J[i] = np.subtract(R_p,R)/h
-#     print(J)
-#     delta = np.linalg.solve(J.T, np.negative(R))
-#     vec_valeur_inconnues = vec_valeur_inconnues + delta
-#     n = n + 1
+
 
