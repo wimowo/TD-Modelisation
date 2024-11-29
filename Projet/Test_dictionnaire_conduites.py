@@ -27,9 +27,10 @@ def Resistance(Q) :
 # reseau_6_noeuds = {1: {"voisins": [3,4], "pression": 100}, 
 #                     2: {"voisins": [3,4,6], "pression": 95}, 
 #                     3: {"voisins": [1,2], "debit" : -0.3}, 
-#                     4: {"voisins": [1,2,5], "debit" : -0.2}, 
+#                     4: {"voisins": [1,2,5], "debit" : -0.2},
 #                     5: {"voisins": [4,6], "debit" : -0.4}, 
 #                     6: {"voisins": [2,5], "debit" : -0.1}}
+
 
 # reseau_6_noeuds = {1: {"voisins": [2,3], "debit": 0.75}, 
 #                     2: {"voisins": [1,3], "debit": -0.25}, 
@@ -71,7 +72,7 @@ def construire_valeurs_initales(reseau):
             voisins = details["voisins"]
             pressions_voisins = [pressions_noeud[f'P{voisin}'] for voisin in voisins if f'P{voisin}' in pressions_noeud]
             if pressions_voisins:
-                pressions_noeud[f'P{noeud}'] = (sum(pressions_voisins) / len(pressions_voisins))*0.9
+                pressions_noeud[f'P{noeud}'] = (sum(pressions_voisins) / len(pressions_voisins))*0.6
             else:
                 pressions_noeud[f'P{noeud}'] = 100  # Valeur par défaut s'il n'y a pas de voisins avec pression définie 
        
@@ -98,7 +99,7 @@ def construire_valeurs_initales(reseau):
                 pression_noeud = pressions_noeud[f'P{noeud}']
                 pression_voisin = pressions_noeud[f'P{voisin}']
                 # Estimation avec la loi de Poiseuille
-                debit_estime = abs(np.pi*(pression_noeud - pression_voisin)*(D/2)**4/(8*mu*L))
+                debit_estime = abs(np.pi*(pression_noeud - pression_voisin+2)*(D/2)**4/(8*mu*L))
                 
                 # Ajouter l'estimation du débit pour cette conduite
                 debits_tuyaux[f'D{tuyau}'] = debit_estime
@@ -142,44 +143,81 @@ for conduite_key in debits_tuyaux.keys():
 # Afficher les résultats
 print("Connus : ", connus)
 print("Inconnus : ", inconnus)
-
+print('conduites',conduites)
 
 # # Fonction de calcul des résidus
-def calcul_residu(reseau_6_noeuds, conduites, connus, inconnus):
+def calcul_residu(reseau, conduites, connus, inconnus):
     
-    # Résidu pour les noeuds (somme des débits entrants et sortants)
+    # # Résidu pour les noeuds (somme des débits entrants et sortants)
     residu_noeud = []
     
-    for noeud, details in reseau_6_noeuds.items():
-        somme_debits = 0
+    # for noeud, details in reseau_6_noeuds.items():
+    #     somme_debits = 0
         
-        # Ajouter les débits connus du noeud
-        if f'D{noeud}' in inconnus:
-            debit_noeud = inconnus.get(f'D{noeud}')  # Débit du noeud
-        else:
-            debit_noeud = connus.get(f'D{noeud}')  # Débit du noeud
-        somme_debits += debit_noeud
+    #     # Ajouter les débits connus du noeud
+    #     if f'D{noeud}' in inconnus:
+    #         debit_noeud = inconnus.get(f'D{noeud}')  # Débit du noeud
+    #     else:
+    #         debit_noeud = connus.get(f'D{noeud}')  # Débit du noeud
+    #     somme_debits += debit_noeud
         
-        # Ajouter les débits estimés des conduites
-        for voisin in details['voisins']:
+    #     # Ajouter les débits estimés des conduites
+    #     for voisin in details['voisins']:
             
-            tuyau_key = (min(noeud, voisin), max(noeud, voisin))
-            tuyau_nom = conduites[tuyau_key]
+    #         tuyau_key = (min(noeud, voisin), max(noeud, voisin))
+    #         tuyau_nom = conduites[tuyau_key]
             
-            # Extraction correcte de l'indice de la conduite
-            tuyau_indice = int(tuyau_nom[1:])  # Indice des débits dans les conduites
+    #         # Extraction correcte de l'indice de la conduite
+    #         tuyau_indice = int(tuyau_nom[1:])  # Indice des débits dans les conduites
             
-            # Récupérer les débits estimés des conduites
-            if f'D{tuyau_nom}' in inconnus:
-                debit_estime = inconnus.get(f'D{tuyau_nom}')
-            else:
-                debit_estime = connus.get(f'D{tuyau_nom}')
-            # print(debit_estime)
-            somme_debits += debit_estime
+    #         # Récupérer les débits estimés des conduites
+    #         if f'D{tuyau_nom}' in inconnus:
+    #             debit_estime = inconnus.get(f'D{tuyau_nom}')
+    #         else:
+    #             debit_estime = connus.get(f'D{tuyau_nom}')
+    #         # print(debit_estime)
+    #         somme_debits += debit_estime
         
-        # Le résidu pour ce noeud (la somme des débits doit être égale à zéro)
-        residu_noeud.append(somme_debits)
+    #     # Le résidu pour ce noeud (la somme des débits doit être égale à zéro)
+    #     residu_noeud.append(somme_debits)
+   # Initialisation des débits à 0 pour tous les noeuds du réseau
+    debits_noeuds = {noeud: 0 for noeud in reseau.keys()}
+
+    # Ajouter les débits connus aux noeuds
+    for key, value in connus.items():
+         if key.startswith('D'):  # Si la clé est un débit (D1, D2, etc.)
+            noeud = int(key[1])  # Extraire le numéro du noeud (par exemple 'D1' -> 1)
+            debits_noeuds[noeud] = value  # Affecter la valeur du débit au noeud
+
+    # Ajouter les débits inconnus aux noeuds
+    for key, value in inconnus.items():
+        if key.startswith('DC'):  # Si la clé est un débit (D1, D2, etc.)
+            pass
+        elif key.startswith('D'):  # Si la clé est un débit (D1, D2, etc.)
+            noeud = int(key[1])  # Extraire le numéro du noeud (par exemple 'D1' -> 1)
+            debits_noeuds[noeud] += value  # Ajouter ce débit au noeud correspondant    
+    
+    # Traiter les débits dans les conduites
+    for (noeud1, noeud2), conduite in conduites.items():
+        if conduite.startswith('C'):  # Si la clé est une conduite (C1, C2, etc.)
+            # Identifier le débit associé à cette conduite (DC1, DC2, etc.)
+            dc_key1 = 'DC' + str(noeud1)  # Par exemple, DC1 pour la conduite entre noeud1 et noeud2
+           
+            # Si le débit de la conduite est défini dans inconnus, l'ajouter aux noeuds correspondants
+            if dc_key1 in inconnus:
+                debit_conduit = inconnus[dc_key1]
+                debits_noeuds[noeud1] -= debit_conduit  # soutrait le débit à noeud1 (sortant)
+                debits_noeuds[noeud2] += debit_conduit  # add le débit de noeud2 (entrant)
+
+            
+    
+    
+    # Calcul de la somme des débits dans le réseau
+    print(debits_noeuds)
    
+    for noeud,somme in debits_noeuds.items():
+     residu_noeud.append(somme)
+    
     # Résidu pour les conduites (calcul de la résistance)
     residu_conduites = []
     
@@ -215,7 +253,7 @@ def calcul_residu(reseau_6_noeuds, conduites, connus, inconnus):
 
 # Newton-Raphson
 N = 100
-tol =0.001
+tol = 0.01
 h = tol
 delta = 1
 n = 0 
@@ -225,16 +263,17 @@ while np.linalg.norm(delta) > tol and n < N:
     J = np.empty([len(R),len(R)])
     i=0
     for a,b in inconnus.items() :
-        # print('ab',a,b)
+        #print('ab',a,b)
         x_p = inconnus.copy()
         x_p[a] = b+h
-        # print('xp',x_p)
+        #print('xp',x_p)
         R_p = calcul_residu(reseau_6_noeuds, conduites, connus, x_p)
         # print('RP',R_p)
         # print('soustra',np.subtract(R_p,R))
         J[i] = np.subtract(R_p,R)/h
         i+=1
-    # print(J)
+    
+    # print(J.T)
     delta = np.linalg.solve(J.T, np.negative(R))
     
     i=0
