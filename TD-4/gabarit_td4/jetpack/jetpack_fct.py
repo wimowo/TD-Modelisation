@@ -66,13 +66,16 @@ def newton_numerique(x,tol,prm):
     n = 0 
     while np.linalg.norm(delta) > tol and n < N:
         R = residu(x, prm)
-        
+        print(x)
         J = np.empty([3,3])
         for i in range(len(R)):
             x_p = np.copy(x)
             x_p[i] = x_p[i]+h
             R_p = residu(x_p,prm)
+          
             J[i] = np.subtract(R_p,R)/h
+           
+        print(J.T)
         delta = np.linalg.solve(J.T, np.negative(R))
         x = x + delta
         n = n + 1
