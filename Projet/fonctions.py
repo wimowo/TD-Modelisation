@@ -7,17 +7,17 @@ Created on Wed Nov 20 09:25:47 2024
 import numpy as np
 
 
-def Reynolds(q, prm):
+def reynolds(q, prm):
     return (4 * prm.rho * q) / (np.pi * prm.mu * prm.D)
 
 
-def Cr(q, prm):
-    return (-2 * (2 ** 0.5)) / (3.83 * (Reynolds(q, prm) ** 0.105)) * (
-        np.log10(np.e / (3.7 * prm.D) + 1.78 / Reynolds(q, prm)))
+def cr(q, prm):
+    return (-2 * (2 ** 0.5)) / (3.83 * (reynolds(q, prm) ** 0.105)) * (
+        np.log10(np.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
 
 
-def Resistance(q, prm):
-    return prm.L / (944.62 * (Cr(q, prm) ** 1.8099) * (prm.D ** 4.8099))
+def resistance(q, prm):
+    return prm.L / (944.62 * np.sign(cr(q,prm))*(np.abs(cr(q, prm)) ** 1.8099) * (prm.D ** 4.8099))
 
 
 def residu(Q, P, points, prm):
@@ -32,8 +32,11 @@ def residu(Q, P, points, prm):
     pressions = np.zeros(nb_cond)
 
     for x in points:
-        for voisins in points[x]["voisins"]:
-            debits[x] += Q[voisins]
+        for c in cond:
+            for n in cond[c]:
+                if x == n:
+                    debits[x] += Q[c]
+                    break
 
         if "debit" in points[x]:
             q_out = points[x]["debit"]
@@ -43,9 +46,11 @@ def residu(Q, P, points, prm):
         p1 = P[cond[c][0]]
         p2 = P[cond[c][1]]
         if "pression" in points[cond[c][0]]:
-            pressions[c] = abs(points[cond[c][0]]["pression"] - p2) - Resistance(Q[cond[c][0]], prm) * Q[cond[c][0]]
-        else:
-            pressions[c] = abs(p1 - p2) - Resistance(Q[cond[c][0]], prm) * Q[cond[c][0]]**prm.n
+            p1 = points[cond[c][0]]["pression"]
+        if "pression" in points[cond[c][1]]:
+            p2 = points[cond[c][1]]["pression"]
+
+        pressions[c] = np.abs(p1 - p2) - resistance(Q[c], prm) * Q[c] ** prm.n
 
     r = np.concatenate((debits, pressions))
 
@@ -66,8 +71,10 @@ def newton_resolution(Q, P, tol, points, prm):
     x = np.concatenate((Q, P))
 
     while np.linalg.norm(delta) > tol and n < N:
-        Q = x[0: nb_points]
-        P = x[nb_points: size]
+        Q = x[0: nb_cond]
+        P = x[nb_cond: size]
+
+
         R = residu(Q, P, points, prm)
 
         J = np.empty([size, size])
@@ -75,11 +82,12 @@ def newton_resolution(Q, P, tol, points, prm):
         for i in range(len(R)):
             x_p = np.copy(x)
             x_p[i] = x_p[i] + h
-            R_p = residu(Q=x_p[0: nb_points], P=x_p[nb_points: size], points=points, prm=prm)
+            R_p = residu(Q=x_p[0: nb_cond], P=x_p[nb_cond: size], points=points, prm=prm)
             J[i] = np.subtract(R_p, R) / h
 
-        delta = -np.linalg.solve(J.T, R)
+        delta = np.linalg.solve(J, np.negative(R))
         x = x + delta
+        print(x)
         n = n + 1
 
     return x
@@ -92,13 +100,15 @@ def calculation_sim(points, prm):
 
 
 def conduits(points):
-    """Fonction qui renvoie le nombre de conduit"""
-    conduit_list = []
-
+    """Fonction qui renvoie les conduits et les points les connectants"""
+    conduit_list = {}
+    x = 0
     for n in points:
         for voisin in points[n]["voisins"]:
-            if (voisin, n) not in conduit_list:
-                conduit_list.append((n, voisin))
+
+            if (voisin, n) not in conduit_list.values():
+                conduit_list[x] = (n, voisin)
+                x += 1
 
     return conduit_list
 
