@@ -13,11 +13,15 @@ def reynolds(q, prm):
 
 def cr(q, prm):
     return (-2 * (2 ** 0.5)) / (3.83 * (reynolds(q, prm) ** 0.105)) * (
-        np.log10(np.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
+        np.log10(prm.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
 
 
 def resistance(q, prm):
-    return prm.L / (944.62 * np.sign(cr(q,prm))*(np.abs(cr(q, prm)) ** 1.8099) * (prm.D ** 4.8099))
+    return prm.L / (944.62 * np.sign(cr(q, prm)) * (np.abs(cr(q, prm)) ** 1.8099) * (prm.D ** 4.8099))
+
+
+def perte(q, prm):
+    return resistance(q, prm) * q ** prm.n
 
 
 def residu(Q, P, points, prm):
@@ -33,10 +37,13 @@ def residu(Q, P, points, prm):
 
     for x in points:
         for c in cond:
-            for n in cond[c]:
-                if x == n:
-                    debits[x] += Q[c]
-                    break
+            if x == cond[c][0]:
+                debits[x] -= Q[c]
+                break
+            elif x == cond[c][1]:
+                debits[x] += Q[c]
+                break
+
 
         if "debit" in points[x]:
             q_out = points[x]["debit"]
@@ -50,7 +57,7 @@ def residu(Q, P, points, prm):
         if "pression" in points[cond[c][1]]:
             p2 = points[cond[c][1]]["pression"]
 
-        pressions[c] = np.abs(p1 - p2) - resistance(Q[c], prm) * Q[c] ** prm.n
+        pressions[c] = np.abs(p1 - p2) - perte(Q[c], prm)
 
     r = np.concatenate((debits, pressions))
 
@@ -72,8 +79,7 @@ def newton_resolution(Q, P, tol, points, prm):
 
     while np.linalg.norm(delta) > tol and n < N:
         Q = x[0: nb_cond]
-        P = x[nb_cond: size]
-
+        P = x[nb_cond:]
 
         R = residu(Q, P, points, prm)
 
@@ -81,11 +87,12 @@ def newton_resolution(Q, P, tol, points, prm):
 
         for i in range(len(R)):
             x_p = np.copy(x)
-            x_p[i] = x_p[i] + h
-            R_p = residu(Q=x_p[0: nb_cond], P=x_p[nb_cond: size], points=points, prm=prm)
-            J[i] = np.subtract(R_p, R) / h
 
-        delta = np.linalg.solve(J, np.negative(R))
+            x_p[i] = x_p[i] + h
+            R_p = residu(Q=x_p[0: nb_cond], P=x_p[nb_cond:], points=points, prm=prm)
+            J[:, i] = (R_p - R) / h
+        print(J)
+        delta = -np.linalg.solve(J, R)
         x = x + delta
         print(x)
         n = n + 1
