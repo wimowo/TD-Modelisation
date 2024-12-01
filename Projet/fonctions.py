@@ -13,7 +13,7 @@ def reynolds(q, prm):
 
 def cr(q, prm):
     return (-2 * (2 ** 0.5)) / (3.83 * (reynolds(q, prm) ** 0.105)) * (
-        np.log10(prm.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
+        np.log(prm.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
 
 
 def resistance(q, prm):
@@ -38,10 +38,10 @@ def residu(Q, P, points, prm):
     for x in points:
         for c in cond:
             if x == cond[c][0]:
-                debits[x] -= Q[c]
+                debits[x] += Q[c]
                 break
             elif x == cond[c][1]:
-                debits[x] += Q[c]
+                debits[x] -= Q[c]
                 break
 
 
@@ -52,10 +52,6 @@ def residu(Q, P, points, prm):
     for c in range(nb_cond):
         p1 = P[cond[c][0]]
         p2 = P[cond[c][1]]
-        if "pression" in points[cond[c][0]]:
-            p1 = points[cond[c][0]]["pression"]
-        if "pression" in points[cond[c][1]]:
-            p2 = points[cond[c][1]]["pression"]
 
         pressions[c] = np.abs(p1 - p2) - perte(Q[c], prm)
 

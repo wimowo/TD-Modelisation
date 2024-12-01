@@ -17,7 +17,7 @@ class parametres():
 
 prm = parametres()
 
-tol = 1e-5
+tol = 1e-2
 
 reseau_2_noeuds = {0: {"voisins": [1], "pression": 100},
                    1: {"voisins": [0], "debit": 0.5},
@@ -40,7 +40,7 @@ print("Conduits 2 noeuds:", conduits(reseau_2_noeuds))
 # print(newton_resolution(Q, P, tol,reseau_6_noeuds, prm))
 
 Q = np.array([0.2])
-P = np.array([56,7])
+P = np.array([106,30])
 
 print(residu(Q, P, reseau_2_noeuds, prm))
 print(newton_resolution(Q, P, tol, reseau_2_noeuds, prm))
