@@ -8,7 +8,7 @@ import numpy as np
 
 
 def reynolds(q, prm):
-    return (4 * prm.rho * q) / (np.pi * prm.mu * prm.D)
+    return (4 * prm.rho * abs(q)) / (np.pi * prm.mu * prm.D)
 
 
 def cr(q, prm):
@@ -17,97 +17,108 @@ def cr(q, prm):
 
 
 def resistance(q, prm):
-    return prm.L / (944.62 * np.sign(cr(q, prm)) * (np.abs(cr(q, prm)) ** 1.8099) * (prm.D ** 4.8099))
+    return prm.L / (944.62 * np.sign(q) * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
 
 
 def perte(q, prm):
-    return resistance(q, prm) * q ** prm.n
+    return resistance(q, prm) * np.sign(q) * np.abs(q) ** prm.n
 
 
-def residu(Q, P, points, prm):
+def residu(Q, P, reseau, prm):
     """Calcul du residu du systeme d'equation"""
 
-    cond = conduits(points)
+    cond = conduits(reseau)
 
-    nb_points = len(points)
+    nb_points = len(reseau)
     nb_cond = len(cond)
 
     debits = np.zeros(nb_points)
     pressions = np.zeros(nb_cond)
 
-    for x in points:
+    q = Q[:nb_points]
+    qc = Q[nb_points:]
+
+    for x in reseau:
         for c in cond:
-            if x == cond[c][0]:
-                debits[x] += Q[c]
-                break
-            elif x == cond[c][1]:
-                debits[x] -= Q[c]
-                break
+            if x in cond[c]:
+                debits[x] += qc[c]
 
-
-        if "debit" in points[x]:
-            q_out = points[x]["debit"]
-            debits[x] -= q_out
+        debits[x] += q[x]
 
     for c in range(nb_cond):
-        p1 = P[cond[c][0]]
-        p2 = P[cond[c][1]]
+        point1 = cond[c][0]
+        point2 = cond[c][1]
 
-        pressions[c] = np.abs(p1 - p2) - perte(Q[c], prm)
+        p1 = P[point1]
+        p2 = P[point2]
+
+        pressions[c] = np.abs(p2 - p1) - perte(qc[c], prm)
 
     r = np.concatenate((debits, pressions))
 
     return r
 
 
-def newton_resolution(Q, P, tol, points, prm):
-    N = 100
+def newton_resolution(Q, P, tol, reseau, prm):
+    N = 1000
 
     h = tol
     delta = 1
     n = 0
 
-    nb_points = len(points)
-    nb_cond = len(conduits(points))
+    nb_points = len(reseau)
+    nb_cond = len(conduits(reseau))
+
+    Q, P, inc = initialisation(reseau)
 
     size = nb_cond + nb_points
     x = np.concatenate((Q, P))
+    J = np.empty([size, size])
+
+    sol = np.empty(size)
+
+    for i in range(size):
+        sol[i] = x[inc[i]]
 
     while np.linalg.norm(delta) > tol and n < N:
-        Q = x[0: nb_cond]
-        P = x[nb_cond:]
 
-        R = residu(Q, P, points, prm)
+        Q = x[: size]
+        P = x[size:]
 
-        J = np.empty([size, size])
+        R = residu(Q, P, reseau, prm)
 
         for i in range(len(R)):
             x_p = np.copy(x)
 
-            x_p[i] = x_p[i] + h
-            R_p = residu(Q=x_p[0: nb_cond], P=x_p[nb_cond:], points=points, prm=prm)
+            x_p[i] += h
+            R_p = residu(Q=x_p[0: size], P=x_p[size:], reseau=reseau, prm=prm)
             J[:, i] = (R_p - R) / h
-        print(J)
-        delta = -np.linalg.solve(J, R)
-        x = x + delta
-        print(x)
+
+        delta = np.linalg.solve(J.T, -R)
+
+        sol = sol + delta
+
+        for i in range(size):
+            x[inc[i]] = sol[i]
+
+        print("sol=", sol)
         n = n + 1
 
-    return x
+    return sol
 
 
-def calculation_sim(points, prm):
+def calculation_sim(reseau, prm):
     """Fonction servant a effectuer la simulation du systeme"""
 
     return
 
 
-def conduits(points):
+def conduits(reseau):
     """Fonction qui renvoie les conduits et les points les connectants"""
     conduit_list = {}
     x = 0
-    for n in points:
-        for voisin in points[n]["voisins"]:
+    for n in reseau:
+        for voisin in reseau[n]["voisins"]:
 
             if (voisin, n) not in conduit_list.values():
                 conduit_list[x] = (n, voisin)
@@ -116,23 +127,33 @@ def conduits(points):
     return conduit_list
 
 
-def initiales(points):
-    nb_point = len(points)
+def initialisation(reseau):
+    cond = conduits(reseau)
 
-    q = 0
-    p = 0
+    nb_point = len(reseau)
+    nb_cond = len(cond)
+    size = nb_point + nb_cond
 
-    Q = np.zeros(len(points))
-    P = np.zeros(len(conduits(points)))
+    Q = np.zeros(size)
+    P = np.zeros(nb_point)
+    inconnues = []
 
-    for p in points:
-        if "debit" in points[p]:
-            Q[p] = points[p]["debit"]
-        if "pression" in points[p]:
-            P += points[p]["pression"]
+    for p in range(nb_point):  # Initialization des debits des points
+        if "debit" in reseau[p]:
+            Q[p] -= reseau[p]["debit"]
+        else:
+            inconnues.append(p)
+            Q[p] = np.random.uniform()
 
-    P /= nb_point
-    Q /= nb_point
+    for n in range(nb_point, size):  # Initialization des debits des conduits
+        inconnues.append(n)
+        Q[n] = np.random.uniform()
 
-    P = np.a
-    return Q, P
+    for p in range(nb_point):  # Initialization des pressions
+        if "pression" in reseau[p]:
+            P[p] = reseau[p]["pression"]
+        else:
+            inconnues.append(p + size)
+            P[p] = np.random.uniform(1, 100)
+
+    return Q, P, inconnues
