@@ -55,4 +55,4 @@ print("Conduits 2 noeuds:", conduits(reseau_2_noeuds))
 Q, P, inc = initialisation(reseau_3_noeuds)
 
 print(Q, P, inc)
-print(newton_resolution(Q, P, tol, reseau_6_noeuds, prm))
+print(newton_resolution(Q, P, tol, reseau_3_noeuds, prm))

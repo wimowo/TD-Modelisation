@@ -8,7 +8,7 @@ import numpy as np
 
 
 def reynolds(q, prm):
-    return (4 * prm.rho * abs(q)) / (np.pi * prm.mu * prm.D)
+    return (4 * prm.rho * q) / (np.pi * prm.mu * prm.D)
 
 
 def cr(q, prm):
@@ -17,11 +17,11 @@ def cr(q, prm):
 
 
 def resistance(q, prm):
-    return prm.L / (944.62 * np.sign(q) * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
+    return prm.L / (944.62  * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
 
 
 def perte(q, prm):
-    return resistance(q, prm) * np.sign(q) * np.abs(q) ** prm.n
+    return resistance(q, prm) * q ** prm.n
 
 
 def residu(Q, P, reseau, prm):
@@ -40,7 +40,9 @@ def residu(Q, P, reseau, prm):
 
     for x in reseau:
         for c in cond:
-            if x in cond[c]:
+            if x == cond[c][0]:
+                debits[x] -= qc[c]
+            if x == cond[c][1]:
                 debits[x] += qc[c]
 
         debits[x] += q[x]
