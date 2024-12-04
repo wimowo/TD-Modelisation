@@ -8,12 +8,12 @@ import numpy as np
 
 
 def reynolds(q, prm):
-    return (4 * prm.rho * q) / (np.pi * prm.mu * prm.D)
+    return (4 * prm.rho * np.abs(q)) / (np.pi * prm.mu * prm.D)
 
 
 def cr(q, prm):
     return (-2 * (2 ** 0.5)) / (3.83 * (reynolds(q, prm) ** 0.105)) * (
-        np.log(prm.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
+        np.log10(prm.e / (3.7 * prm.D) + 1.78 / reynolds(q, prm)))
 
 
 def resistance(q, prm):
@@ -21,7 +21,7 @@ def resistance(q, prm):
 
 
 def perte(q, prm):
-    return resistance(q, prm) * q ** prm.n
+    return resistance(q, prm) * np.abs(q) ** prm.n
 
 
 def residu(Q, P, reseau, prm):
@@ -61,8 +61,8 @@ def residu(Q, P, reseau, prm):
     return r
 
 
-def newton_resolution(Q, P, tol, reseau, prm):
-    N = 1000
+def newton_resolution(reseau, tol, n, prm):
+    N = n
 
     h = tol
     delta = 1
@@ -78,6 +78,7 @@ def newton_resolution(Q, P, tol, reseau, prm):
     J = np.empty([size, size])
 
     sol = np.empty(size)
+    x_p = np.empty(size)
 
     for i in range(size):
         sol[i] = x[inc[i]]
@@ -92,21 +93,22 @@ def newton_resolution(Q, P, tol, reseau, prm):
         for i in range(len(R)):
             x_p = np.copy(x)
 
-            x_p[i] += h
-            R_p = residu(Q=x_p[0: size], P=x_p[size:], reseau=reseau, prm=prm)
+            x_p[inc[i]] += h
+            R_p = residu(x_p[0: size],x_p[size:], reseau, prm)
             J[:, i] = (R_p - R) / h
 
-        delta = np.linalg.solve(J.T, -R)
+        delta = np.linalg.solve(J, -R)
 
         sol = sol + delta
 
         for i in range(size):
             x[inc[i]] = sol[i]
-
-        print("sol=", sol)
         n = n + 1
 
-    return sol
+    f = Q[:nb_points]
+    Q = Q[nb_points:]
+
+    return Q,P,f
 
 
 def calculation_sim(reseau, prm):
@@ -156,6 +158,6 @@ def initialisation(reseau):
             P[p] = reseau[p]["pression"]
         else:
             inconnues.append(p + size)
-            P[p] = np.random.uniform(1, 100)
+            P[p] = np.random.uniform(0, np.max(P))
 
     return Q, P, inconnues
