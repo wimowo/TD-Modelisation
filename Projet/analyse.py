@@ -17,6 +17,7 @@ class parametres():
 
 prm = parametres()
 
+# Definition des reseaux de noeuds a analyser
 reseau_2_noeuds = {0: {"voisins": [1], "pression": 100},
                    1: {"voisins": [0], "debit": 0.5},
                    }
@@ -56,17 +57,19 @@ reseau_8_noeuds = {0: {"voisins": [1], "pression": 100},
                    7: {"voisins": [5, 6], "pression": 80.11},
                    }
 
-print("Conduits 8 noeuds:", conduits(reseau_8_noeuds))
-print("Conduits 7 noeuds:", conduits(reseau_7_noeuds))
-print("Conduits 6 noeuds:", conduits(reseau_6_noeuds))
-print("Conduits 4 noeuds:", conduits(reseau_4_noeuds))
-print("Conduits 3 noeuds:", conduits(reseau_3_noeuds))
-print("Conduits 2 noeuds:", conduits(reseau_2_noeuds))
-
+# Resolution du probleme
 tol = 1e-5
 N = 10000
 
-Q, P, f = newton_resolution(reseau_3_noeuds, tol, N, prm)
-print("Q=", Q)
-print("P=", P)
-print("f=", f)
+noeuds, conduits = calculation_sim(reseau_6_noeuds, prm)
+for p in noeuds:
+    print(p,":")
+    print("Pression :", noeuds[p]["pression"], "mmH2O")
+    print("Debit :", noeuds[p]["debit"], "m³/s")
+    print("-------------------------------")
+
+for c in conduits:
+    print(c,":")
+    print("Noeuds :", conduits[c]["noeuds"])
+    print("Debit :", conduits[c]["debit"], "m³/s")
+    print("-------------------------------")

@@ -17,7 +17,7 @@ def cr(q, prm):
 
 
 def resistance(q, prm):
-    return prm.L / (944.62  * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
+    return prm.L / (944.62 * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
 
 
 def perte(q, prm):
@@ -61,7 +61,7 @@ def residu(Q, P, reseau, prm):
     return r
 
 
-def newton_resolution(reseau, tol, n, prm):
+def newton_resolution(reseau, prm, tol=1e-5, n=1000):
     N = n
 
     h = tol
@@ -94,7 +94,7 @@ def newton_resolution(reseau, tol, n, prm):
             x_p = np.copy(x)
 
             x_p[inc[i]] += h
-            R_p = residu(x_p[0: size],x_p[size:], reseau, prm)
+            R_p = residu(x_p[0: size], x_p[size:], reseau, prm)
             J[:, i] = (R_p - R) / h
 
         delta = np.linalg.solve(J, -R)
@@ -108,13 +108,27 @@ def newton_resolution(reseau, tol, n, prm):
     f = Q[:nb_points]
     Q = Q[nb_points:]
 
-    return Q,P,f
+    return Q, P, f
 
 
-def calculation_sim(reseau, prm):
+def calculation_sim(reseau, prm, tol=1e-5, N=1000):
     """Fonction servant a effectuer la simulation du systeme"""
+    Q, P, f = newton_resolution(reseau, prm, tol, N)
 
-    return
+    nodes_result = {}
+    pipes_result = {}
+
+    for p in reseau:
+        nodes_result["Noeud " + str(p + 1)] = {"pression": P[p], "debit": f[p]}
+
+    cond = conduits(reseau)
+    for c in cond:
+        point1 = cond[c][0] + 1
+        point2 = cond[c][1] + 1
+
+        pipes_result["Conduit " + str(c + 1)] = {"noeuds": (point1, point2), "debit": Q[c]}
+
+    return nodes_result, pipes_result
 
 
 def conduits(reseau):
