@@ -21,11 +21,11 @@ def cr(q, prm):
 
 
 def resistance(q, prm):
-    return prm.L / (944.62 * np.sign(q) * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
+    return prm.L / (944.62 * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
 
 
 def perte(q, prm):
-    return resistance(q, prm) * np.sign(q) * np.abs(q) ** prm.n
+    return resistance(q, prm) * np.abs(q) ** prm.n
 
 
 """
@@ -49,6 +49,7 @@ def residu(Q, P, reseau, prm):
 
     for x in reseau:
         for c in cond:
+            # verification du sense du débit : point[0] -→ point[1]
             if x == cond[c][0]:
                 debits[x] -= qc[c]
             if x == cond[c][1]:
@@ -132,14 +133,14 @@ def calculation_sim(reseau, prm, tol=1e-5, N=1000):
     pipes_result = {}
 
     for p in reseau:
-        nodes_result["Noeud " + str(p + 1)] = {"pression": P[p], "debit": f[p]}
+        nodes_result[p] = {"pression": P[p], "debit": f[p]}
 
     cond = conduits(reseau)
     for c in cond:
         point1 = cond[c][0] + 1
         point2 = cond[c][1] + 1
 
-        pipes_result["Conduit " + str(c + 1)] = {"noeuds": (point1, point2), "debit": Q[c]}
+        pipes_result[c] = {"noeuds": (point1, point2), "debit": Q[c]}
 
     return nodes_result, pipes_result
 
@@ -176,15 +177,31 @@ def initialisation(reseau):
             inconnues.append(p)  # ajout du nœud a la liste des inconnus
             Q[p] = np.random.uniform()
 
-    for n in range(nb_point, size):  # Initialization des debits des conduits
-        inconnues.append(n)  # tous les conduits sont inconnus
-        Q[n] = np.random.uniform()
+    for n in cond:  # Initialization des debits des conduits
+        inconnues.append(n + nb_point)  # tous les conduits sont inconnus
+        moyenne = np.average((Q[cond[n][0]], Q[cond[n][1]]))
+        Q[n + nb_point] = moyenne + 0.1
 
     for p in range(nb_point):  # Initialization des pressions
         if "pression" in reseau[p]:
             P[p] = reseau[p]["pression"]
         else:
             inconnues.append(p + size)  # ajout du nœud a la liste des inconnus
-            P[p] = np.random.uniform(0, np.max(P))
-
+            P[p] = np.average(P) * 0.6
     return Q, P, inconnues
+
+
+def sortie_console(noeuds, conduits = 0):
+    """Génère une belle sortie des données dans la console"""
+    for p in noeuds:
+        print("Noeud " + str(p + 1), ":")
+        print("Pression :", noeuds[p]["pression"], "mmH2O")
+        print("Debit :", noeuds[p]["debit"], "m³/s")
+        print("-------------------------------")
+
+    if conduits != 0:
+        for c in conduits:
+            print("Conduit " + str(c + 1), ":")
+            print("Noeuds :", conduits[c]["noeuds"])
+            print("Debit :", conduits[c]["debit"], "m³/s")
+            print("-------------------------------")

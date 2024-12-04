@@ -26,6 +26,12 @@ class FluidFlowApp:
         self.density_var = tk.DoubleVar()
         self.viscosity_var = tk.DoubleVar()
 
+        self.length = 25
+        self.diameter = 0.2
+        self.roughness = 0.00026
+        self.density = 1000
+        self.viscosity = 0.00089
+
         self.create_param_fields()
 
         # Grid creation
@@ -59,7 +65,9 @@ class FluidFlowApp:
         self.plot_frame.grid(row=0, column=1, rowspan=3, sticky="nsew", padx=10, pady=10)
 
         plt.style.use('dark_background')
-        self.figure, self.ax = plt.subplots(figsize=(5, 4))
+
+        self.figure, self.ax = plt.subplots(figsize=(8, 6))
+        self.ax.axis('off')
         self.canvas_plot = FigureCanvasTkAgg(self.figure, master=self.plot_frame)
         self.canvas_plot.get_tk_widget().pack()
 
@@ -67,13 +75,14 @@ class FluidFlowApp:
 
     def create_param_fields(self):
         fields = [
-            ("Length (m):", self.length_var),
-            ("Diameter (m):", self.diameter_var),
-            ("Roughness (m):", self.roughness_var),
-            ("Density (kg/m³):", self.density_var),
-            ("Dynamic Viscosity (Pa·s):", self.viscosity_var),
+            ("Length (m):", self.length_var, self.length),
+            ("Diameter (m):", self.diameter_var, self.diameter),
+            ("Roughness (m):", self.roughness_var, self.roughness),
+            ("Density (kg/m³):", self.density_var, self.density),
+            ("Dynamic Viscosity (Pa·s):", self.viscosity_var, self.viscosity),
         ]
-        for i, (label, var) in enumerate(fields):
+        for i, (label, var, txt) in enumerate(fields):
+            var.set(txt)
             ttk.Label(self.params_frame, text=label).grid(row=i, column=0, sticky="e", padx=5, pady=5)
             ttk.Entry(self.params_frame, textvariable=var).grid(row=i, column=1, padx=5, pady=5)
 
@@ -104,9 +113,9 @@ class FluidFlowApp:
         self.grid_canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill="#3b92f5")
 
         self.points[point_id] = {
-            "pressure": tk.DoubleVar(),
-            "flow": tk.DoubleVar(),
-            "active": tk.StringVar(value="pressure")  # Default to pressure
+            "pression": tk.DoubleVar(),
+            "debit": tk.DoubleVar(),
+            "active": tk.StringVar(value="pression")  # Default to pressure
         }
         self.graph.add_node(point_id, pos=(x, y))
 
@@ -123,15 +132,15 @@ class FluidFlowApp:
 
         # Create radio buttons to toggle pressure/flow
         self.pressure_radio = ttk.Radiobutton(
-            self.grid_canvas, text="Pressure", variable=active, value="pressure", command=self.update_input_fields
+            self.grid_canvas, text="Pressure", variable=active, value="pression", command=self.update_input_fields
         )
         self.flow_radio = ttk.Radiobutton(
-            self.grid_canvas, text="Flow", variable=active, value="flow", command=self.update_input_fields
+            self.grid_canvas, text="Flow", variable=active, value="debit", command=self.update_input_fields
         )
 
         # Create input fields for pressure/flow
-        self.pressure_entry = ttk.Entry(self.grid_canvas, textvariable=point_data["pressure"], width=6, state="normal")
-        self.flow_entry = ttk.Entry(self.grid_canvas, textvariable=point_data["flow"], width=6, state="disabled")
+        self.pressure_entry = ttk.Entry(self.grid_canvas, textvariable=point_data["pression"], width=6, state="normal")
+        self.flow_entry = ttk.Entry(self.grid_canvas, textvariable=point_data["debit"], width=6, state="disabled")
 
         # Place components on the canvas
         self.radio_window = self.grid_canvas.create_window(x - 40, y - 20, window=self.pressure_radio)
@@ -143,7 +152,7 @@ class FluidFlowApp:
         """Enable the appropriate input field based on the selected parameter."""
         if self.selected_point:
             active = self.points[self.selected_point]["active"].get()
-            if active == "pressure":
+            if active == "pression":
                 self.pressure_entry.config(state="normal")
                 self.flow_entry.config(state="disabled")
             else:
@@ -205,7 +214,7 @@ class FluidFlowApp:
         if point_id in self.graph:
             self.graph.remove_node(point_id)
 
-        self.graph.add_node(point_id)  # Ensure the point exists in the graph
+        self.graph.add_node(point_id, pos=(x, y))  # Ensure the point exists in the graph
 
         # Check in all four cardinal directions
         for dx, dy in [(0, -self.grid_size), (0, self.grid_size), (-self.grid_size, 0), (self.grid_size, 0)]:
@@ -213,7 +222,7 @@ class FluidFlowApp:
             if neighbor:
                 # Connect this point to the found neighbor
                 self.graph.add_edge(point_id, neighbor)
-                self.graph.add_edge(neighbor, point_id)  # Ensure bidirectional connection
+                # self.graph.add_edge(neighbor, point_id)  # Ensure bidirectional connection
                 self.draw_line_between_points(point_id, neighbor)
 
     def find_neighbor_in_direction(self, x, y, dx, dy):
@@ -244,7 +253,6 @@ class FluidFlowApp:
 
             for neighbor in self.graph.neighbors(point):
                 neighbor_index = point_index[neighbor]
-                nx, ny = neighbor
                 neighbors.append(neighbor_index)
 
             # Export only the selected parameter
@@ -253,7 +261,7 @@ class FluidFlowApp:
 
             grid_data[index] = {
                 active: value,
-                "neighbors": neighbors
+                "voisins": neighbors
             }
 
         return grid_data
@@ -265,21 +273,71 @@ class FluidFlowApp:
             roughness = self.roughness_var.get()
             density = self.density_var.get()
             viscosity = self.viscosity_var.get()
-            print(self.export_grid_data())
             if not all([length, diameter, roughness, density, viscosity]):
                 raise ValueError("All global parameters must be set.")
-
         except Exception as e:
             messagebox.showerror("Error", str(e))
             return
 
+        prm = parametres()
+        prm.L = length
+        prm.D = diameter
+        prm.e = roughness
+        prm.rho = density
+        prm.mu = viscosity
+
+        network = self.export_grid_data()
+
+        noeuds, conduits = calculation_sim(network, prm)
+        print(noeuds)
+        sortie_console(noeuds, conduits)
+
         self.ax.clear()
+        self.ax.margins(0.3)
+        self.ax.axis('off')
+
         pos = nx.get_node_attributes(self.graph, "pos")
-        nx.draw(self.graph, pos, ax=self.ax, node_color="lightblue", edge_color="black")
+
+        nx.draw_networkx_nodes(self.graph, pos, node_color="tab:blue")
+        nx.draw_networkx_edges(
+            self.graph,
+            pos,
+            arrowstyle="-",
+            arrowsize=10,
+            edge_color="lightblue",
+            width=2
+        )
+
+        labels = {}
+        nodes = np.array(self.graph.nodes())
+        for node in noeuds:
+            pression = noeuds[node]["pression"]
+            debit = noeuds[node]["debit"]
+            labels[tuple(nodes[node])] = f"{pression:.2f} mmH2O \n {debit:.2f} m³/s"
+
+        nx.draw_networkx_labels(self.graph, pos, labels, ax=self.ax, font_size=10, font_color="whitesmoke")
+
+        edges = self.graph.edges()
+        print(edges)
+        labels_edge = {}
+        for edge in conduits:
+            debit = conduits[edge]["debit"]
+            n1, n2 = list(edges)[edge]
+
+            labels_edge[(n1, n2)] = f"{debit:.2f} m³/s"
+
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=labels_edge, font_size=8,  font_color="black")
+
         self.canvas_plot.draw()
 
-        messagebox.showinfo("Computation", "Flow computation is not implemented yet!")
 
+class parametres():
+    L = 25  # Longueur des conduits (m)
+    D = 0.2  # Diametre (m)
+    e = 0.00026  # Rugosite (m)
+    rho = 1000  # Masse volumique (kg/m3)
+    mu = 0.00089  # Viscosite dynamique (pa/s)
+    n = 1.8099
 
 
 # Main Application

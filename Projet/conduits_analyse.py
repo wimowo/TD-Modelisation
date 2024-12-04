@@ -65,17 +65,7 @@ reseau_pression = {0: {"voisins": [2, 3], "pression": 100},
 
 # Resolution du probleme
 tol = 1e-5
-N = 10000
+N = 1000
 
-noeuds, conduits = calculation_sim(reseau_6_noeuds, prm)
-for p in noeuds:
-    print(p,":")
-    print("Pression :", noeuds[p]["pression"], "mmH2O")
-    print("Debit :", noeuds[p]["debit"], "m³/s")
-    print("-------------------------------")
-
-for c in conduits:
-    print(c,":")
-    print("Noeuds :", conduits[c]["noeuds"])
-    print("Debit :", conduits[c]["debit"], "m³/s")
-    print("-------------------------------")
+noeuds, conduits = calculation_sim(reseau_4_noeuds, prm, N = N)
+sortie_console(noeuds)
