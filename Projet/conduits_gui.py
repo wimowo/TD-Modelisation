@@ -293,7 +293,7 @@ class FluidFlowApp:
         sortie_console(noeuds, conduits)
 
         self.ax.clear()
-        self.ax.margins(0.3)
+        self.ax.margins(0.1)
         self.ax.axis('off')
 
         pos = nx.get_node_attributes(self.graph, "pos")
@@ -318,7 +318,6 @@ class FluidFlowApp:
         nx.draw_networkx_labels(self.graph, pos, labels, ax=self.ax, font_size=10, font_color="whitesmoke")
 
         edges = self.graph.edges()
-        print(edges)
         labels_edge = {}
         for edge in conduits:
             debit = conduits[edge]["debit"]
@@ -328,6 +327,7 @@ class FluidFlowApp:
 
         nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=labels_edge, font_size=8,  font_color="black")
 
+        plt.savefig("sim_output",dpi=300)
         self.canvas_plot.draw()
 
 

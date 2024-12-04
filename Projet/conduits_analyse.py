@@ -62,10 +62,17 @@ reseau_pression = {0: {"voisins": [2, 3], "pression": 100},
                    2: {"voisins": [0, 1], "pression": 80},
                    3: {"voisins": [0, 1], "pression": 20}
                    }
+reseau_perso = {0: {"voisins": [1], "pression": 100},
+                1: {"voisins": [0, 2], "debit": 0.2},
+                2: {"voisins": [1, 3], "debit": 0.25},
+                3: {"voisins": [2, 4, 5], "debit": 0.16},
+                4: {"voisins": [3, 5], "debit": 0.15955},
+                5: {"voisins": [3, 4], "pression": 95.53}
+                }
 
 # Resolution du probleme
-tol = 1e-5
+tol = 1e-6
 N = 1000
 
-noeuds, conduits = calculation_sim(reseau_4_noeuds, prm, N = N)
-sortie_console(noeuds)
+noeuds, conduits = calculation_sim(reseau_6_noeuds, prm, tol=tol,N=N)
+sortie_console(noeuds, conduits)

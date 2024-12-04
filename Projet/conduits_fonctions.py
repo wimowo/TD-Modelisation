@@ -50,10 +50,11 @@ def residu(Q, P, reseau, prm):
     for x in reseau:
         for c in cond:
             # verification du sense du débit : point[0] -→ point[1]
-            if x == cond[c][0]:
-                debits[x] -= qc[c]
-            if x == cond[c][1]:
-                debits[x] += qc[c]
+            if x in cond[c]:
+                if "pression" in reseau[x]:
+                    debits[x] -= qc[c]
+                else:
+                    debits[x] += qc[c]
 
         debits[x] += q[x]
 
@@ -82,7 +83,7 @@ def newton_resolution(reseau, prm, tol=1e-5, n=1000):
     nb_points = len(reseau)
     nb_cond = len(conduits(reseau))
 
-    Q, P, inc = initialisation(reseau)
+    Q, P, inc = initialisation(reseau, prm)
 
     size = nb_cond + nb_points
     x = np.concatenate((Q, P))
@@ -151,15 +152,16 @@ def conduits(reseau):
     x = 0
     for n in reseau:
         for voisin in reseau[n]["voisins"]:
-
-            if (voisin, n) not in conduit_list.values():  # Verifie si le
+            # n1 = max(n, voisin)
+            # n2 = min(n, voisin)
+            if (voisin, n) not in conduit_list.values():  # Verifie si le conduit existe deja
                 conduit_list[x] = (n, voisin)
                 x += 1
 
     return conduit_list
 
 
-def initialisation(reseau):
+def initialisation(reseau, prm):
     cond = conduits(reseau)
 
     nb_point = len(reseau)
@@ -170,28 +172,54 @@ def initialisation(reseau):
     P = np.zeros(nb_point)
     inconnues = []  # Création d'une liste des indices des données inconnues
 
+    pressions_noeud = {}
+    debits_noeud = {}
+
+    for noeud, details in reseau.items():
+        if "pression" in details:
+            pressions_noeud[noeud] = details["pression"]
+        if "debit" in details:
+            debits_noeud[noeud] = details["debit"]
+
     for p in range(nb_point):  # Initialization des débits des points
+        voisins = reseau[p]["voisins"]
+        debits_voisins = [debits_noeud[voisin] for voisin in voisins if voisin in debits_noeud]
+        pressions_voisins = [pressions_noeud[voisin] for voisin in voisins if voisin in pressions_noeud]
+
         if "debit" in reseau[p]:
-            Q[p] -= reseau[p]["debit"]  # Debit sortant lorsque la valeur est donnée
+            Q[p] = -reseau[p]["debit"]  # Debit sortant lorsque la valeur est donnée
         else:
             inconnues.append(p)  # ajout du nœud a la liste des inconnus
-            Q[p] = np.random.uniform()
+            if debits_voisins:
+                Q[p] = np.average(debits_voisins)*0.6
+            else:
+                Q[p] = np.random.uniform()
 
-    for n in cond:  # Initialization des debits des conduits
-        inconnues.append(n + nb_point)  # tous les conduits sont inconnus
-        moyenne = np.average((Q[cond[n][0]], Q[cond[n][1]]))
-        Q[n + nb_point] = moyenne + 0.1
-
-    for p in range(nb_point):  # Initialization des pressions
         if "pression" in reseau[p]:
             P[p] = reseau[p]["pression"]
         else:
             inconnues.append(p + size)  # ajout du nœud a la liste des inconnus
-            P[p] = np.average(P) * 0.6
+            if pressions_voisins:
+                P[p] = np.average(pressions_voisins)*0.6
+            else:
+                P[p] = np.random.uniform()*100
+
+    for n in cond:  # Initialization des debits des conduits
+        inconnues.append(n + nb_point)  # tous les conduits sont inconnus
+        point1 = cond[n][0]
+        point2 = cond[n][1]
+
+        # moyenne = np.average((Q[point1], Q[point2]))
+
+        # Estimation avec la loi de Poiseuille
+        debit_estime = abs(np.pi * (P[point2] - P[point1] + 2) * (prm.D / 2) ** 4 / (8 * prm.mu * prm.L))
+
+        Q[n + nb_point] = debit_estime
+
     return Q, P, inconnues
 
 
-def sortie_console(noeuds, conduits = 0):
+def sortie_console(noeuds, conduits=0):
     """Génère une belle sortie des données dans la console"""
     for p in noeuds:
         print("Noeud " + str(p + 1), ":")
