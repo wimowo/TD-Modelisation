@@ -6,6 +6,10 @@ Created on Wed Nov 20 09:25:47 2024
 """
 import numpy as np
 
+"""
+Les fonctions suivantes servent a resoudre la perte avec l'equation de Hazen-Williams
+"""
+
 
 def reynolds(q, prm):
     return (4 * prm.rho * np.abs(q)) / (np.pi * prm.mu * prm.D)
@@ -17,15 +21,20 @@ def cr(q, prm):
 
 
 def resistance(q, prm):
-    return prm.L / (944.62 * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
+    return prm.L / (944.62 * np.sign(q) * np.abs(cr(q, prm)) ** 1.8099 * prm.D ** 4.8099)
 
 
 def perte(q, prm):
-    return resistance(q, prm) * np.abs(q) ** prm.n
+    return resistance(q, prm) * np.sign(q) * np.abs(q) ** prm.n
+
+
+"""
+Les fonctions suivantes servent a resoudre resoudre les inconnus du système
+"""
 
 
 def residu(Q, P, reseau, prm):
-    """Calcul du residu du systeme d'equation"""
+    """Calcul du résidu du système d'équation"""
 
     cond = conduits(reseau)
 
@@ -62,6 +71,7 @@ def residu(Q, P, reseau, prm):
 
 
 def newton_resolution(reseau, prm, tol=1e-5, n=1000):
+    """Resolution du réseau par la methode de Newton-Raphson"""
     N = n
 
     h = tol
@@ -92,9 +102,12 @@ def newton_resolution(reseau, prm, tol=1e-5, n=1000):
 
         for i in range(len(R)):
             x_p = np.copy(x)
-
             x_p[inc[i]] += h
-            R_p = residu(x_p[0: size], x_p[size:], reseau, prm)
+
+            Q_p = x_p[0: size]
+            P_p = x_p[size:]
+
+            R_p = residu(Q_p, P_p, reseau, prm)
             J[:, i] = (R_p - R) / h
 
         delta = np.linalg.solve(J, -R)
@@ -112,7 +125,7 @@ def newton_resolution(reseau, prm, tol=1e-5, n=1000):
 
 
 def calculation_sim(reseau, prm, tol=1e-5, N=1000):
-    """Fonction servant a effectuer la simulation du systeme"""
+    """Fonction servant à effectuer la simulation du system et la retourner en trois listes"""
     Q, P, f = newton_resolution(reseau, prm, tol, N)
 
     nodes_result = {}
@@ -138,7 +151,7 @@ def conduits(reseau):
     for n in reseau:
         for voisin in reseau[n]["voisins"]:
 
-            if (voisin, n) not in conduit_list.values():
+            if (voisin, n) not in conduit_list.values():  # Verifie si le
                 conduit_list[x] = (n, voisin)
                 x += 1
 
@@ -154,24 +167,24 @@ def initialisation(reseau):
 
     Q = np.zeros(size)
     P = np.zeros(nb_point)
-    inconnues = []
+    inconnues = []  # Création d'une liste des indices des données inconnues
 
-    for p in range(nb_point):  # Initialization des debits des points
+    for p in range(nb_point):  # Initialization des débits des points
         if "debit" in reseau[p]:
-            Q[p] -= reseau[p]["debit"]
+            Q[p] -= reseau[p]["debit"]  # Debit sortant lorsque la valeur est donnée
         else:
-            inconnues.append(p)
+            inconnues.append(p)  # ajout du nœud a la liste des inconnus
             Q[p] = np.random.uniform()
 
     for n in range(nb_point, size):  # Initialization des debits des conduits
-        inconnues.append(n)
+        inconnues.append(n)  # tous les conduits sont inconnus
         Q[n] = np.random.uniform()
 
     for p in range(nb_point):  # Initialization des pressions
         if "pression" in reseau[p]:
             P[p] = reseau[p]["pression"]
         else:
-            inconnues.append(p + size)
+            inconnues.append(p + size)  # ajout du nœud a la liste des inconnus
             P[p] = np.random.uniform(0, np.max(P))
 
     return Q, P, inconnues

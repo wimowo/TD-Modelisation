@@ -1,7 +1,7 @@
 import numpy as np
 
 try:
-    from fonctions import *
+    from conduits_fonctions import *
 except:
     pass
 
@@ -55,6 +55,12 @@ reseau_8_noeuds = {0: {"voisins": [1], "pression": 100},
                    5: {"voisins": [3, 4, 7], "debit": 0.86334},
                    6: {"voisins": [2, 7], "debit": 0.1981},
                    7: {"voisins": [5, 6], "pression": 80.11},
+                   }
+
+reseau_pression = {0: {"voisins": [2, 3], "pression": 100},
+                   1: {"voisins": [2, 3], "pression": 95},
+                   2: {"voisins": [0, 1], "pression": 80},
+                   3: {"voisins": [0, 1], "pression": 20}
                    }
 
 # Resolution du probleme

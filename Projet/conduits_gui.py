@@ -5,6 +5,12 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import networkx as nx
 import sv_ttk
 
+try:
+    from conduits_fonctions import *
+except:
+    pass
+
+
 class FluidFlowApp:
     def __init__(self, root):
         self.root = root
@@ -95,7 +101,7 @@ class FluidFlowApp:
 
     def add_point(self, x, y, point_id):
         """Adds a new point to the canvas and graph."""
-        self.grid_canvas.create_oval(x-5, y-5, x+5, y+5, fill= "#3b92f5")
+        self.grid_canvas.create_oval(x - 5, y - 5, x + 5, y + 5, fill="#3b92f5")
 
         self.points[point_id] = {
             "pressure": tk.DoubleVar(),
@@ -172,11 +178,12 @@ class FluidFlowApp:
         self.draw_grid()
         for node in self.graph.nodes:
             nx, ny = node
-            self.grid_canvas.create_oval(nx-5, ny-5, nx+5, ny+5, fill="#3b92f5")
+            self.grid_canvas.create_oval(nx - 5, ny - 5, nx + 5, ny + 5, fill="#3b92f5")
         for edge in self.graph.edges:
             x1, y1 = edge[0]
             x2, y2 = edge[1]
             self.grid_canvas.create_line(x1, y1, x2, y2, fill="#3b92f5", tags="connection", width=3)
+
     def reset_grid(self):
         """Clears the entire grid, resets all points, and redraws the canvas."""
         # Clear data structures
@@ -209,8 +216,6 @@ class FluidFlowApp:
                 self.graph.add_edge(neighbor, point_id)  # Ensure bidirectional connection
                 self.draw_line_between_points(point_id, neighbor)
 
-
-
     def find_neighbor_in_direction(self, x, y, dx, dy):
         """Finds the nearest neighbor in the given direction, if any."""
         while True:
@@ -227,6 +232,7 @@ class FluidFlowApp:
         x1, y1 = point1
         x2, y2 = point2
         self.grid_canvas.create_line(x1, y1, x2, y2, fill="#3b92f5", tags="connection", width=3)
+
     def export_grid_data(self):
         """Exports the grid as a dictionary containing points, neighbors, distances, and values."""
         point_index = {point: i for i, point in enumerate(self.points)}  # Map points to indices
@@ -235,7 +241,7 @@ class FluidFlowApp:
         for point, index in point_index.items():
             x, y = point
             neighbors = []
-            
+
             for neighbor in self.graph.neighbors(point):
                 neighbor_index = point_index[neighbor]
                 nx, ny = neighbor
@@ -273,6 +279,8 @@ class FluidFlowApp:
         self.canvas_plot.draw()
 
         messagebox.showinfo("Computation", "Flow computation is not implemented yet!")
+
+
 
 # Main Application
 if __name__ == "__main__":
