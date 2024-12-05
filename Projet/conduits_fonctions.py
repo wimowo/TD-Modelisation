@@ -200,7 +200,7 @@ def initialisation(reseau, prm):
         else:
             inconnues.append(p)  # ajout du nœud a la liste des inconnus
             if debits_voisins:
-                Q[p] = np.average(pressions_voisins) * 0.6
+                Q[p] = np.average(pressions_voisins) * 0.5
             else:
                 Q[p] = 0.1
 
