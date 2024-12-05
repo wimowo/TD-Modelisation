@@ -117,7 +117,7 @@ class FluidFlowApp:
             "debit": tk.DoubleVar(),
             "active": tk.StringVar(value="pression")  # Default to pressure
         }
-        self.graph.add_node(point_id, pos=(x, y))
+        self.graph.add_node(point_id, pos=(x, 400-y))
 
         self.connect_cardinal_neighbors(point_id)
 
@@ -214,7 +214,7 @@ class FluidFlowApp:
         if point_id in self.graph:
             self.graph.remove_node(point_id)
 
-        self.graph.add_node(point_id, pos=(x, y))  # Ensure the point exists in the graph
+        self.graph.add_node(point_id, pos=(x, 400 - y))  # Ensure the point exists in the graph
 
         # Check in all four cardinal directions
         for dx, dy in [(0, -self.grid_size), (0, self.grid_size), (-self.grid_size, 0), (self.grid_size, 0)]:
@@ -289,7 +289,6 @@ class FluidFlowApp:
         network = self.export_grid_data()
 
         noeuds, conduits = calculation_sim(network, prm)
-        print(noeuds)
         sortie_console(noeuds, conduits)
 
         self.ax.clear()
