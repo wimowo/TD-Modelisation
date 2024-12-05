@@ -315,7 +315,7 @@ class FluidFlowApp:
             debit = noeuds[node]["debit"]
             labels[tuple(nodes[node])] = f"{pression:.2f} mmH2O \n {debit:.2f} m³/s"
 
-        nx.draw_networkx_labels(self.graph, pos, labels, ax=self.ax, font_size=10, font_color="whitesmoke")
+        nx.draw_networkx_labels(self.graph, pos, labels, ax=self.ax, font_size=12, font_color="whitesmoke")
 
         edges = self.graph.edges()
         labels_edge = {}
@@ -325,7 +325,7 @@ class FluidFlowApp:
 
             labels_edge[(n1, n2)] = f"{debit:.2f} m³/s"
 
-        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=labels_edge, font_size=8,  font_color="black")
+        nx.draw_networkx_edge_labels(self.graph, pos, edge_labels=labels_edge, font_size=10,  font_color="black")
 
         plt.savefig("sim_output",dpi=300)
         self.canvas_plot.draw()

@@ -71,8 +71,8 @@ reseau_perso = {0: {"voisins": [1], "pression": 100},
                 }
 
 # Resolution du probleme
-tol = 1e-6
+tol = 1e-5
 N = 1000
 
-noeuds, conduits = calculation_sim(reseau_6_noeuds, prm, tol=tol,N=N)
+noeuds, conduits = calculation_sim(reseau_perso, prm, tol=tol,N=N)
 sortie_console(noeuds, conduits)
